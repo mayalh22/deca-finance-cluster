@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DECA Finance Quiz</title>
+
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Roboto', sans-serif; background: #fff; color: #152238; min-height: 100vh; }
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+#app { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
+
+#progress-bar-wrap { background: #e0e0e0; height: 4px; border-radius: 2px; margin-bottom: 32px; }
+
+#progress-bar { background: #009b47; height: 4px; border-radius: 2px; transition: width 0.3s; }
+
+#meta { font-size: 13px; color: #888; margin-bottom: 20px; font-weight: 500; letter-spacing: 0.5px; }
+
+#pile-info { font-size: 13px; color: #555; margin-bottom: 12px; display: flex; gap: 16px; }
+
+.pile-badge { padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 12px; }
+
+.pile-x { background: #e6f9ef; color: #009b47; border: 1px solid #009b47; }
+
+.pile-y { background: #fff0f0; color: #c0392b; border: 1px solid #c0392b; }
+
+.pile-u { background: #f0f0f0; color: #888; border: 1px solid #ccc; }
+
+#question { font-size: 18px; font-weight: 500; line-height: 1.5; margin-bottom: 28px; color: #152238; }
+
+.opt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid #e0e0e0; color: #152238; padding: 14px 18px; margin-bottom: 10px; font-size: 15px; font-family: 'Roboto', sans-serif; cursor: pointer; border-radius: 4px; transition: border-color 0.15s; }
+
+.opt:hover:not(:disabled) { border-color: #009b47; }
+
+.opt.correct { border-color: #009b47; background: #f0fff6; color: #152238; }
+
+.opt.wrong { border-color: #c0392b; background: #fff5f5; color: #152238; }
+
+.opt:disabled { cursor: default; }
+
+#explanation { display: none; background: #f7f7f7; border-left: 4px solid #009b47; padding: 16px 18px; margin-top: 20px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
+
+#explanation.wrong-exp { border-left-color: #c0392b; }
+
+#wrong-choice-note { display: none; background: #fff5f5; border-left: 4px solid #c0392b; padding: 12px 18px; margin-top: 12px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
+
+#next-btn { display: none; margin-top: 24px; background: #009b47; color: #fff; border: none; padding: 14px 32px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px; }
+
+#next-btn:hover { background: #007a38; }
+
+#round-complete { display: none; text-align: center; padding: 60px 0; }
+
+#round-complete h2 { font-size: 28px; font-weight: 700; color: #152238; margin-bottom: 8px; }
+
+#round-complete p { font-size: 16px; color: #555; margin-bottom: 32px; }
+
+#continue-btn { background: #c0392b; color: #fff; border: none; padding: 14px 36px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; }
+
+#continue-btn:hover { background: #a93226; }
+
+</style>
+
+</head>
+
+<body>
+
+<div id="app">
+
+<div id="quiz-screen">
+
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<div id="pile-info">
+
+<span class="pile-badge pile-x">✓ Mastered: <span id="count-x">0</span></span>
+
+<span class="pile-badge pile-y">✗ Review: <span id="count-y">0</span></span>
+
+<span class="pile-badge pile-u">? Unseen: <span id="count-u">0</span></span>
+
+</div>
+
+<div id="meta"></div>
+
+<div id="question"></div>
+
+<div id="options"></div>
+
+<div id="wrong-choice-note"></div>
+
+<div id="explanation"></div>
+
+<button id="next-btn">Next →</button>
+
+</div>
+
+<div id="round-complete">
+
+<h2 id="round-title"></h2>
+
+<p id="round-sub"></p>
+
+<button id="continue-btn">Keep Going →</button>
+
+</div>
+
+</div>
+
+<script>
+
+const ALL_QUESTIONS = [
+
+// Test 1184
+
+{q:"Businesses must comply with regulations that limit the amount and type of pollution and waste they produce. These regulations are referred to as __________ laws.",opts:["Environmental","Antitrust","Property","Industrial"],ans:0,exp:"Environmental laws protect the natural environment—air, soil, and water—and govern how businesses dispose of waste. Noncompliant businesses may be fined or shut down."},
+
+{q:"What form of business ownership is best to use when the business owners have difficulty acquiring enough money to pay for startup costs and initial operating expenses?",opts:["Partnership","Sole proprietorship","Franchise","Corporation"],ans:3,exp:"By starting a corporation, owners can sell stock to raise capital. A partnership is limited to the partners' resources. A sole proprietorship is owned by one person."},
+
+{q:"An important purpose of full-disclosure laws and regulations is to:",opts:["Allow company employees to use inside information for personal gain","Provide information to investors so they can make informed decisions","Require companies to disclose all information about their operations","Prevent a stock's par value from dropping below its market value"],ans:1,exp:"Full-disclosure laws require companies to publicize any information that could affect stock value, so investors can make informed buy, hold, or sell decisions."},
+
+{q:"Which of the following is a tax-deductible gift?",opts:["Stocks","Vacation home","Charitable donation","Inherited items"],ans:2,exp:"Charitable donations are tax deductible—the donor pays reduced or no tax depending on type and value. Vacation homes, stocks, and inherited items are taxable gifts."},
+
+{q:"Which of the following is an example of a preventive internal control?",opts:["Physical inventories","Data reconciliations","Variance analyses","Segregation of duties"],ans:3,exp:"Preventive controls like segregation of duties attempt to prevent noncompliance from occurring. Data reconciliations, variance analyses, and physical inventories are detective controls."},
+
+{q:"What type of technology do businesses use to inspect financial transactions and ensure compliance with government regulations?",opts:["Domain computing","Cyber mapping","Virtual auditors","Simulation browsers"],ans:2,exp:"Virtual auditors use multiple reasoning processes to identify errors affecting compliance and help businesses fix problems quickly."},
+
+{q:"A researcher should consider an author's expertise when assessing the validity of written articles to:",opts:["Analyze the author's emotional intelligence","Verify the timeliness of the information","Evaluate the author's level of credibility","Confirm personal understanding of the information"],ans:2,exp:"A person with extensive expertise in a topic is more credible and more likely to present reliable information."},
+
+{q:"What method of note-taking involves using headings and subheadings to record relationships and content in a multi-level structure?",opts:["Sentence","Outline","Mapping","Shorthand"],ans:1,exp:"The outline format organizes content in levels. Under each heading, the note taker writes key points that relate to that heading."},
+
+{q:"In a formal business letter, the salutation is written:",opts:["After the body of the letter","On the front of the envelope","On the back of the envelope","Before the body of the letter"],ans:3,exp:"The salutation is a greeting written immediately before the body of the letter. It is not written on envelopes or after the body."},
+
+{q:"What is an example of a topic addressed in an informational message?",opts:["Request for payment on a past-due account","Date and time of appointment with customer","Charitable appeal for a corporate donation","Invitation to speak at a national conference"],ans:1,exp:"Informational messages send routine information such as appointment confirmations. Requests for payment, charity appeals, and speaking invitations are persuasive messages."},
+
+{q:"Because Caroline does not have enough time to read an entire 400-page business report, what section should she review?",opts:["Appendices","Table of contents","Executive summary","Conclusions"],ans:2,exp:"The executive summary provides an overview of the entire report and contains the most important information for those with time constraints."},
+
+{q:"What type of information is often transmitted through upward communication?",opts:["Instructions","Suggestions","Evaluations","Corrections"],ans:1,exp:"Upward communication allows employees to send suggestions to management. Instructions, evaluations, and corrections typically flow downward."},
+
+{q:"It is appropriate for a participant to ask questions during a staff meeting when:",opts:["S/he needs a point clarified","Another participant is speaking","The agenda is being distributed","S/he does not agree with the speaker"],ans:0,exp:"Asking for clarification is appropriate; however, interrupting another speaker or asking when the agenda is distributed is not."},
+
+{q:"A customer asked a salesperson whether a hair dryer purchased last month could be returned or exchanged. To answer, the salesperson should be familiar with the business's:",opts:["Finances","Promotions","Policies","Products"],ans:2,exp:"Policies ensure employees make consistent decisions. Return and exchange policies guide salespeople in handling these transactions."},
+
+{q:"Which CRM software would be most appropriate for a company looking for a more efficient way to track potential new clients?",opts:["Matching engine technology","Campaign management software","Personalization technology","Sales force automation"],ans:3,exp:"Sales force automation (SFA) technology tracks leads, prospects, and customers, and includes contact management and sales forecasting."},
+
+{q:"What is the most common reason for a client to leave or fire his/her financial advisor?",opts:["Location of the office","Poor investment return","High commission fees","Lack of communication"],ans:3,exp:"The most common reason clients fire financial advisors is lack of communication. Clients expect regular contact, prompt replies, and account updates."},
+
+{q:"Businesses use data-cleansing applications to:",opts:["Calculate statistical data","Update their databases","Duplicate internal records","Generate necessary reports"],ans:1,exp:"Data-cleansing removes duplicate records, updates expired data, and completes incomplete fields, keeping databases current for accurate reporting."},
+
+{q:"Justin is deciding between a video game or concert tickets with his $50. If he chooses the video game, what is the opportunity cost?",opts:["Birthday check","Video game","Concert tickets","$50"],ans:2,exp:"Opportunity cost is the benefit lost when choosing one option over another. Justin gives up the concert tickets, so that is the opportunity cost."},
+
+{q:"Which of the following is most likely to affect the selling price of roses?",opts:["A large number of rose bushes are killed by disease","Plants and small shrubs are also sold at the flower shop","The flower shop also carries silk flowers","A reorder shipment of roses arrives"],ans:0,exp:"Disease killing rose bushes reduces supply, which increases price. Assortment changes do not affect other products' prices."},
+
+{q:"What must a business be organized to do to contribute to society?",opts:["Preserve the environment","Earn a profit","Sell an idea","Hire an advisor"],ans:1,exp:"Businesses contribute to society through jobs and community support, but none of this is possible unless the business is organized to earn a profit."},
+
+{q:"Which of the following is a result of globalization?",opts:["Shrinking product life cycles","Decreased competition","Increased consumer spending","Higher productivity"],ans:3,exp:"When countries concentrate on goods where they have a production advantage, productivity goes up worldwide. Globalization also increases competition."},
+
+{q:"What type of tax are businesses required to pay on the profits they earn?",opts:["Excise","Income","Sales","Property"],ans:1,exp:"Income tax is a tax on profit. Excise and sales taxes differ. Property tax applies to material goods, not profit."},
+
+{q:"Allowing employees to make more decisions, set their own work pace, and supervise coworkers is considered to be job:",opts:["Rotation","Satisfaction","Enrichment","Enlargement"],ans:2,exp:"Job enrichment adds interest and satisfaction by giving employees more decision-making authority and responsibility."},
+
+{q:"The rate of underemployed workers is often highest when a nation is experiencing an economic:",opts:["Recession","Expansion","Peak","Inhibition"],ans:0,exp:"During a recession, jobs are scarce and workers take jobs for which they are overqualified, increasing underemployment."},
+
+{q:"Businesspeople must understand the importance of nonverbal cues when dealing internationally, which include the use of:",opts:["Proper grammar","Accurate word pronunciation","Hand gestures","Interactive feedback"],ans:2,exp:"Nonverbal communication involves gestures rather than words. A hand gesture may mean friendship in one culture and disrespect in another."},
+
+{q:"Which of the following is a main cause of prejudice and discrimination?",opts:["A lack of knowledge about a group of people","Exposing yourself to new situations","Openly discussing bias with others","Naturally occurring differences of opinion"],ans:0,exp:"Not knowing people who are different can lead to discomfort and prejudicial thinking. Exposure and discussion decrease prejudice."},
+
+{q:"What is Jason doing when he blames the office assistant for the out-of-stock washers?",opts:["Denying that a problem exists","Helping Susan resolve the problem","Providing Susan with a valid reason for the stock-out","Blaming another person for his mistake"],ans:3,exp:"Taking responsibility means admitting mistakes. Jason blames the office assistant but is the employee responsible for ordering the washers."},
+
+{q:"Should Joe meet with the vendor for lunch at 1:00 p.m. at a restaurant 30 minutes away, given he must return by 2:00 p.m.?",opts:["Yes, if the vendor changes the reservation to 12:45","No, it is rude for the vendor to assume Joe has time","Yes, if Joe reschedules his training session","No, Joe would have only 30 minutes to meet before returning"],ans:3,exp:"Joe needs 30 minutes to travel, leaving only 30 minutes to meet—not enough for a one-hour luncheon before his 2:00 training."},
+
+{q:"Typical characteristics of a person with a negative attitude are that s/he is:",opts:["Courteous and considerate toward others","Inflexible and resistant to change","Generous and helpful to others","Flexible and open to new ideas"],ans:1,exp:"Negative people tend to be inflexible and resistant to change. Positive attitudes involve being flexible, generous, and open."},
+
+{q:"When you react defensively to criticism, the result is likely to be:",opts:["Pleasant","Sympathetic","Negative","Cooperative"],ans:2,exp:"A defensive response usually irritates the person offering criticism, triggering an unpleasant, unsympathetic, or uncooperative reaction."},
+
+{q:"Being able to put yourself in another person's place means that you have:",opts:["Perspective","Respect","Empathy","Understanding"],ans:2,exp:"Empathy is the ability to walk in another person's shoes. Respect is esteem. Perspective is how people view life. Understanding is the ability to comprehend."},
+
+{q:"What is the first step toward building trusting relationships?",opts:["Increasing sales","Increasing productivity","Developing ideas","Being transparent"],ans:3,exp:"Being transparent is the first step. Increased productivity, better ideas, and increased sales are benefits of transparency."},
+
+{q:"An example of assertive verbal behavior would be:",opts:["Complimenting someone to obtain a favor","Maintaining appropriate eye contact","Initiating conversations with others","Giving a progress report in a staff meeting"],ans:2,exp:"Taking initiative to start conversations is assertive verbal behavior. Eye contact is nonverbal. Complimenting for favors is manipulative."},
+
+{q:"Ethical behavior increases productivity and morale because it:",opts:["Makes employees want to support the organization's mission","Makes sure people are following the rules","Leads to increased profits and more product sales","Makes sure laws are never broken"],ans:0,exp:"When people behave ethically, everyone feels respected and wants to contribute. Productivity and morale rise because employees support the mission."},
+
+{q:"When a person is inspired, s/he is:",opts:["Driven to take action","Disengaged from work","Uninterested and bored","Likely to break the rules"],ans:0,exp:"An inspired person is driven to take action and is typically more engaged and enthusiastic about work."},
+
+{q:"Unethical actions:",opts:["Are acceptable if everyone else does them","Always have legal consequences","Are not always illegal","Only affect the person doing them"],ans:2,exp:"Being unethical doesn't always mean breaking the law. Unethical behavior can affect everyone, not just the person doing it."},
+
+{q:"At what stage of the entrepreneurial process does an entrepreneur determine the amount of capital needed to launch the business?",opts:["Actualization","Discovery","Development","Harvesting"],ans:2,exp:"Capital needs are determined in the development stage. Discovery explores feasibility. Actualization is launching. Harvesting is exiting."},
+
+{q:"By understanding the time value of money concept, you know that:",opts:["Saving money can buy time on debt payment","It is better to receive $101 a year from now than $100 today","It is better to receive $100 today than $101 a year from now","Time and money are related by due date"],ans:2,exp:"Money available now is worth more because of its earning potential. Receiving money later costs you the opportunity to earn interest."},
+
+{q:"Margot wants her money, house, and cars to go to her sister when she dies. Margot should create a:",opts:["Will","Retirement fund","College savings fund","Bank account"],ans:0,exp:"A will is a legal document outlining how assets are distributed after death. Retirement funds and bank accounts don't guarantee asset distribution."},
+
+{q:"When should you record bank transactions in your check register?",opts:["When checks bounce","When bank statements are received","As bank statements are reconciled","As soon as each check is written"],ans:3,exp:"Recording transactions as they occur prevents inaccuracies and overdrafts. Waiting can result in errors when reconciling statements."},
+
+{q:"Which international financial institution provides financing and advice to countries to encourage economic development?",opts:["Commonwealth of Nations","Small Business Administration","World Bank Group","Liberty Institute"],ans:2,exp:"The World Bank Group provides financing and advice to impoverished countries to encourage economic development and eliminate poverty."},
+
+{q:"Which of the following statements regarding debt and equity markets is correct?",opts:["If a company suffers financially, stockholders are paid before bondholders","Investors who purchase bonds gain partial ownership of the business","Bonds are typically less risky investments than stocks","Common stock, a debt instrument, is traded on the equity market"],ans:2,exp:"Bonds are debt instruments and typically less risky than stocks. Bondholders are paid before stockholders. Stocks, not bonds, provide ownership."},
+
+{q:"The Money for You Bank recently merged with the Keeping You Safe Insurance Company. This merger is an example of __________ in the finance industry.",opts:["Licensing","Consolidation","Tactical planning","Convergence"],ans:3,exp:"Convergence is when financial providers from different sectors (banking and insurance) merge. Same-sector mergers are consolidation."},
+
+{q:"When the unemployment rate rises, stock values typically:",opts:["Increase","Decrease","Stabilize quickly","Remain unchanged"],ans:1,exp:"Rising unemployment signals a possible recession. Investors sell stocks and businesses hold funds, causing stock values to decrease."},
+
+{q:"Which of the following has contributed to financial globalization?",opts:["An increase in restrictions on foreign investment and trade","An increase in taxes on international financial transactions","A reduction in foreigners' access to domestic financial markets","A movement from fixed exchange rates to floating exchange rates"],ans:3,exp:"Moving from fixed to floating exchange rates enables capital to flow more freely across national borders, contributing to globalization."},
+
+{q:"Which of the following is a true statement about stock information resources?",opts:["It has never been easier to find stock information","There are very few stock information sources","Only wealthy investors have access to stock information","It is very difficult to find stock information"],ans:0,exp:"A few years ago only professionals had access to in-depth stock information. Now there is a great deal of easy-to-find information available to all investors."},
+
+{q:"Based on a securities table, Home Depot closed at $35.01 with a net change of +$0.62. Which statement is most accurate?",opts:["The previous day's closing price was $34.39","Home Depot's stock is 2.7 times higher than earnings per share","The lowest price in the last year was $18.92","An investor with 100 shares earned $27 in dividends last quarter"],ans:0,exp:"To find the previous day's close, subtract net change from today's close: $35.01 - $0.62 = $34.39."},
+
+{q:"Certificates of deposit and collectibles are types of:",opts:["Earnings","Accounts","Securities","Investments"],ans:3,exp:"CDs and collectibles are types of investments. CDs pay guaranteed interest; collectibles may gain or lose value over time."},
+
+{q:"When preparing a statement of changes in owner's equity, which is specifically represented on the statement?",opts:["New investments by the owner","Property taxes paid by the owner","Depreciation of company assets","Lost revenue due to discharged debt"],ans:0,exp:"New investments or withdrawals by the owner are specifically listed. Property taxes, depreciation, and lost revenue factor into net income/loss."},
+
+{q:"Which of the following is an example of a finance professional exhibiting responsible behavior?",opts:["A financial planner asks Colin specific questions about his financial goals","Katherine tries to sell a high-risk product to earn a large commission","A financial advisor delays contacting Olivia about declining stock value","Ryan shares a client's portfolio details at a dinner party"],ans:0,exp:"Responsible planners ask questions to understand clients' goals and risk tolerance before recommending products."},
+
+{q:"A new employee left JRB Manufacturing two weeks after completing training. The expense of training is a(n) __________ for the company.",opts:["External cost","Sunk cost","Current asset","Capital liability"],ans:1,exp:"Sunk costs are incurred and cannot be recovered. The training money spent cannot be recouped since the employee no longer works there."},
+
+{q:"A managerial accountant can help a company market its products by:",opts:["Examining the relevant costs of advertising options","Determining whether to make or buy a component","Developing a target market analysis","Creating a budget for hiring increases"],ans:0,exp:"Managerial accountants use relevant cost analysis to help marketers decide between advertising options by comparing their costs."},
+
+{q:"What type of variance analysis involves the difference between standard and actual costs of raw materials used for production?",opts:["Selling price","Purchase price","Material yield","Fixed overhead"],ans:1,exp:"Purchase price variance monitors variances in the price of raw materials. Material yield involves quantity variances. Fixed overhead involves unchanging expenses."},
+
+{q:"Kenneth is easily able to guide his employees' actions by referring to his budget. This is an example of which function of budgets?",opts:["Controlling","Planning","Directing","Monitoring"],ans:2,exp:"Directing is executing goals by guiding employees' actions with the budget. Planning sets goals. Controlling compares results. Monitoring tracks progress."},
+
+{q:"Gathering and communicating financial information for planning a business's operations is the focus of __________ accounting.",opts:["Accrual","Managerial","Financial","Equity"],ans:1,exp:"Managerial accounting obtains and analyzes financial data to help businesses make operational decisions such as budgeting and cost analysis."},
+
+{q:"Which of the following is an example of an indirect cost in an automobile factory?",opts:["Shipping","Glass","Electricity","Assembly line workers' salaries"],ans:2,exp:"Electricity is used for many purposes throughout the factory and cannot be assigned to a specific product—it's an indirect cost."},
+
+{q:"What is one of the main purposes of a business's sales budget?",opts:["To estimate income","To forecast trends","To predict the economy","To track the competition"],ans:0,exp:"The sales budget estimates income from goods and services, helping determine if the business will be profitable."},
+
+{q:"Yazmin earned $5,000 from her summer job. If she invests it at 5%, how much will it be worth in two years?",opts:["$5,025.50","$10,250","$5,500","$5,512.50"],ans:3,exp:"FV = $5,000 × (1.05)² = $5,000 × 1.1025 = $5,512.50"},
+
+{q:"What is the most negative information possible on a credit report?",opts:["Collection agency report","Late payment","Lien","Bankruptcy"],ans:3,exp:"Bankruptcy has the most negative impact on a credit report. Late payments, liens, and collection reports also appear but have less impact."},
+
+{q:"Reports from a financial-information management system are being used to reallocate funds to improve profitability. In this situation, the reports are:",opts:["Guiding decision-making","Ensuring compliance","Improving customer service","Tracking purchasing behavior"],ans:0,exp:"Financial reports help managers make sound decisions about how to use or reallocate money to operate more efficiently."},
+
+{q:"Pamela was dismissed for sharing her login with a coworker to access an off-limits database. Pamela failed in her responsibilities as a data:",opts:["Processor","Auditor","Sponsor","Steward"],ans:3,exp:"A data steward ensures data integrity and ethical use—only by authorized individuals. Pamela allowed unauthorized access."},
+
+{q:"Why has online technology's use increased in financial-information management?",opts:["Protection of customers' right to privacy","Removal of electronic information exchange procedures","Recognition that transaction security is no longer an issue","Passage of laws recognizing electronic documents as legally binding"],ans:3,exp:"As laws began recognizing electronic documents and signatures as legally binding, businesses became more comfortable using online financial management."},
+
+{q:"What computer application enables a business to access data from its ERP software for use in budgeting software?",opts:["Cross-reference","Automated data transfer","Group","Data-validation"],ans:1,exp:"Automated data transfer applications quickly move financial information stored in one program (like ERP) to another (like budgeting software)."},
+
+{q:"Helena's manager asked her to compile a report with financial ratios including the current ratio and rate of return on equity. She should use __________ software.",opts:["Data-mining","Budgeting","Financial analysis","Field service"],ans:2,exp:"Financial analysis applications calculate and report financial ratios and compare a business's performance to competitors and industry standards."},
+
+{q:"Tank's Trucking Company is focusing on eliminating waste and creating more value with fewer resources. Which methodology is it using?",opts:["Sustainability","Six sigma","Activity-based costing","Lean"],ans:3,exp:"Lean is a production practice focused on eliminating wasteful processes that don't add value, increasing implementation speed and productivity."},
+
+{q:"What is the primary reason that creditors analyze their customers' financial information?",opts:["To determine how often their customers' inventory turns over","To know whether they're making a good investment","To determine the likelihood of getting paid","To understand the type of accounting method customers use"],ans:2,exp:"Creditors take risks extending credit and analyze financial information to assess whether customers are likely to repay their debts."},
+
+{q:"Latisha is writing a list of skills, knowledge, and characteristics for a nurse position. She is working on a(n):",opts:["Onboarding activity","Job description","Strategic plan","Job specification"],ans:3,exp:"A job specification describes what a person in a position should be—their education, traits, and characteristics. A job description describes what they do."},
+
+{q:"Marketing encourages people from different countries to __________ frequently.",opts:["Train","Trade","Think","Travel"],ans:1,exp:"Marketing creates exchanges between people and nations, encouraging frequent trade. Traveling, training, and thinking are not specifically encouraged by marketing."},
+
+{q:"A benefit of informed decisions is that they:",opts:["Reduce a business's risk","Are usually bad decisions","Cost less money","Hurt a business's chances at competing"],ans:0,exp:"Informed decisions are better decisions that reduce a business's risk and help businesses compete more effectively."},
+
+{q:"Why is it important for businesses to manage employee information in a way that keeps it secure?",opts:["To beat the competition","To be secretive","To be ethical","To avoid publicity"],ans:2,exp:"Businesses have an ethical obligation to protect confidential employee and customer information from becoming public and causing harm."},
+
+{q:"A legal issue associated with the use of information might involve the violation of __________ laws.",opts:["Patent","Copyright","Trademark","Contract"],ans:1,exp:"Copyright protects books and artistic works. Using copyrighted material without permission violates copyright laws and can result in substantial penalties."},
+
+{q:"What type of system synchronizes sales and marketing efforts?",opts:["Customer relationship management","Transaction processing","Supply chain management","Decision support"],ans:0,exp:"CRM systems accumulate and track customer activities and allow for interactions between customers and businesses to synchronize sales and marketing."},
+
+{q:"Which is a computer-based time-management tool that helps employees track appointments and activities?",opts:["Perpetual calendar","Electronic task organizer","Instant-messaging program","Alarm clock"],ans:1,exp:"Electronic task organizers and calendars help employees track appointments and tasks, making them more efficient and productive."},
+
+{q:"What is the first step in designing a multi-table query?",opts:["Determine the criteria","Pinpoint exactly what you want to know","Locate the correct tables","Set the correct join direction"],ans:1,exp:"The first step is determining exactly what question you want the database to answer. Without this, no other step will be successful."},
+
+{q:"Businesses may review invoices to evaluate their customers':",opts:["Storage needs","Business plans","Purchasing habits","Selling policies"],ans:2,exp:"By analyzing past invoices, a business determines what customers are buying, when, and how much—helping forecast future sales."},
+
+{q:"Philippe wants to find the average length of time visitors spend on his website. Which data would be most useful?",opts:["Receiving data","External data","Clickstream data","Qualitative data"],ans:2,exp:"Clickstream data includes how long people visit a website and what they do while there. External and qualitative data would not provide this."},
+
+{q:"Halifax Retail uses computer applications to track inventory and order goods from vendors. What technology is the company using?",opts:["Customer relationship management (CRM)","Global positioning system (GPS)","Electronic data interchange (EDI)","Territorial routing application (TRA)"],ans:2,exp:"EDI systems allow businesses to transmit inventory and ordering information to and from suppliers, streamlining the purchasing process."},
+
+{q:"The most important reason why workplace accidents that don't result in injuries should be reported to supervisors is because:",opts:["The next accident could result in an injury","This is required by state law","The report prevents future liability","This is an OSHA requirement"],ans:0,exp:"A non-injurious accident should be reported so circumstances can be corrected, potentially preventing a future injurious accident."},
+
+{q:"What should you do when creating a schedule for your project?",opts:["Break down the work into specific activities and tasks","Figure out exactly when you will get each part done","Determine when certain parts of the project are due","Identify risks that could affect your schedule"],ans:2,exp:"When creating a project schedule, determine when certain parts are due. Breaking down tasks happens before, and risk identification happens after."},
+
+{q:"In which stage of project management does risk analysis take place?",opts:["Closing","Initiation","Execution","Planning"],ans:3,exp:"Risk analysis takes place in the planning stage so project managers can prepare to minimize its effects. Execution is when the work is done."},
+
+{q:"Determining project costs involves taking the information gained from assessing needed resources and:",opts:["Asking the client for at least twice as much funding","Using it for scheduling purposes","Adjusting the project purpose as necessary","Translating it into a realistic budget"],ans:3,exp:"Project costs are determined by translating resource assessment into a realistic budget with client input."},
+
+{q:"Comparing the prices offered by different vendors for the same goods and services is what part of the purchasing process?",opts:["Price fixing","Bid analysis","Invoice payment","Receipt of goods"],ans:1,exp:"Bid analysis compares vendor prices to find the best option. Price fixing involves businesses agreeing on prices. Invoice payment is paying for received goods."},
+
+{q:"What can you do to help your company control expenses?",opts:["Focus strictly on how much work you can get done","Follow company policies and procedures","Handle sales transactions as quickly as possible","Carry out research and development activities"],ans:1,exp:"Following company policies—like return policies—prevents losing money. Focusing only on speed or quantity can lead to costly errors."},
+
+{q:"Which of the following is a benefit of putting your goals in writing?",opts:["Clarifies the goals","Develops your perseverance","Makes the goals attainable","Provides a challenge"],ans:0,exp:"Writing out goals helps clarify them, makes them real, and serves as a reminder. Perseverance must be developed on your own."},
+
+{q:"Which of the following is a true statement about creativity?",opts:["Creativity is primarily demonstrated through entertainment and the arts","Only people born with a natural gift can display creativity","Creativity is a skill we only use on special occasions","People show creativity in a variety of ways"],ans:3,exp:"People show creativity in many ways, not just through arts. Creativity is a skill used regularly, and anyone can develop it."},
+
+{q:"If a question on a job application does not apply to you, how should you respond?",opts:["Leave it blank","Make up a response","Write 'does not apply'","Write 'cannot answer'"],ans:2,exp:"Writing 'does not apply' shows you read and completed the application. Leaving it blank may suggest you forgot; 'cannot answer' implies hiding something."},
+
+{q:"Why will it benefit you to learn as much as possible about a prospective employer before a job interview?",opts:["It prepares you to ask good questions","It shows that you do a lot of reading","It ensures that you'll be considered for the job","It gives you something to discuss during the interview"],ans:0,exp:"Research prepares you to ask intelligent questions, demonstrating your interest. It doesn't guarantee consideration or dictate what the interviewer discusses."},
+
+{q:"What should job applicants offer to do in the closing paragraph of an interview follow-up letter?",opts:["Send an appropriate gift","Work for a reduced salary","Provide further information","Accept any available job"],ans:2,exp:"Offering to provide further information shows interest and reinforces the desire to be hired without stating it directly."},
+
+{q:"Bobbi is responsible for calculating the risk of loss, establishing premium rates, and designing insurance policies. Bobbi works as a(n):",opts:["Underwriter","Agent","Accountant","Financial analyst"],ans:0,exp:"Underwriters calculate risk, establish premium rates, and design policies. Agents sell insurance. Analysts evaluate companies and make investment recommendations."},
+
+{q:"Which of the following statements regarding corporate governance is true?",opts:["Corporate governance makes shareholders accountable to managers","Corporate governance emphasizes individual goals over group goals","Corporate governance aligns the interests of individuals, corporations, and society","Corporate governance is only used to protect shareholder interests"],ans:2,exp:"Corporate governance aligns the interests of all stakeholders, emphasizes group goals, and makes managers accountable to shareholders."},
+
+{q:"One way that organizations can achieve their corporate governance objectives is by:",opts:["Encouraging employee participation at board meetings","Preventing stakeholders from viewing financial information","Allowing senior managers to serve on the board","Releasing an annual report detailing failures and losses"],ans:0,exp:"Employees should be encouraged to participate in board meetings to raise questions or concerns about company actions."},
+
+{q:"Internal audits are used by __________, while external audits are used by __________.",opts:["Management; stakeholders","Stakeholders; employees","Creditors; management","Employees; competitors"],ans:0,exp:"Internal audits are for management to analyze risks. External audits by outside firms are used by stakeholders like investors and creditors."},
+
+{q:"Which of the following serves as an organization's conscience during decision-making?",opts:["The public","The 'C-Suite' (CEO, CFO, etc.)","Employees","Board of directors"],ans:3,exp:"The board of directors guides the organization during decision-making to ensure it accomplishes its mission efficiently and ethically."},
+
+{q:"Brynn serves on trade association committees, co-authors articles, and treats contacts to dinner or golf. These activities are forms of:",opts:["Advertising","Cooperating","Networking","Up-selling"],ans:2,exp:"Networking connects individuals who can help accomplish professional goals. These activities create opportunities to build beneficial professional relationships."},
+
+{q:"How can management reduce the business's level of risk associated with ethics?",opts:["Advise employees that following ethics depends on the situation","Allow employees to follow their own set of ethics","Assume employees know what constitutes ethical behavior","Train employees about expectations in relation to workplace ethics"],ans:3,exp:"Ethics training helps employees understand the business's ethical standards and expectations, reducing the risk of unknowing violations."},
+
+{q:"A business can protect its computerized financial data from losses associated with fire, flood, and electrical outages by:",opts:["Changing passwords and encryption techniques periodically","Installing intrusion detection systems","Performing backup procedures on a regular basis","Implementing a manual filing system"],ans:2,exp:"Regular backups stored off-site protect against loss from fire, floods, or electrical outages. Manual systems are less efficient than computer systems."},
+
+{q:"When businesses in an industry carry risks that commercial insurance won't cover, they often form __________ to __________ risk.",opts:["Captive insurance companies; transfer","Insurance rating companies; avoid","Insurance brokerage firms; assume","Independent life insurance agencies; minimize"],ans:0,exp:"Captive insurance companies are owned by the founding organizations. By purchasing insurance through their own company, they transfer unusual risks."},
+
+{q:"Why is the choice of a risk measure for internal and external risk of great practical importance?",opts:["It determines the maximum number of clients that can be served","It determines the minimum reserve requirements in financial trading","It identifies the types of risks the institution will encounter","It designates the audience for resulting financial reports"],ans:1,exp:"Different risk measures can result in lower or higher minimum reserve requirements, directly affecting the financial institution's profit."},
+
+{q:"Which of the following is a true statement regarding enterprise risk management (ERM)?",opts:["All risks considered in ERM are negative","ERM focuses on the combined impact of all risks","ERM can make achieving goals more difficult","Risks usually relate to relationships between employees"],ans:1,exp:"ERM takes into account all risks (positive and negative) an organization may face and looks at their combined impact to help achieve goals."},
+
+{q:"Setting overall goals for a business, guiding activities, and keeping the business moving toward its goals are part of the role of:",opts:["Employees","Managers","Consultants","Supervisors"],ans:1,exp:"Managers set overall goals and motivate employees to accomplish them. Employees work toward goals. Supervisors guide employees in carrying out activities."},
+
+// Test 1208
+
+{q:"Which of the following is a characteristic of a legally binding contract?",opts:["Something of value must be exchanged","One of the parties must be in agreement","The contract must be written and signed","The contract must include an expiration date"],ans:0,exp:"A legally binding contract requires something of value to be exchanged and both parties must agree. It doesn't need to be written, signed, or have an expiration date."},
+
+{q:"A business might conduct a compliance audit to:",opts:["Develop efficient production processes","Manipulate financial data to indicate profitability","Ensure that it is following government regulations","Evaluate its vendors' performance"],ans:2,exp:"Compliance audits ensure a business follows all government regulations and can detect discrepancies needing correction."},
+
+{q:"What is an advantage of using technology in compliance?",opts:["Risk of increased fraud","Decreased cost","Ease of transitions","Increased efficiency"],ans:3,exp:"Technology makes the compliance process more efficient, allowing information to be utilized and processed much faster."},
+
+{q:"When a financial agent legally acts in the best interests of his/her client, the agent is establishing a(n) __________ relationship.",opts:["Principal","Authoritative","Fiduciary","Legislative"],ans:2,exp:"A fiduciary relationship exists when an agent shows loyalty and trustworthiness by acting in the client's best interest."},
+
+{q:"Andrew received a fraudulent email requesting bank account and credit card information. What illegal activity does this exemplify?",opts:["Affinity fraud","Ponzi scheme","Phishing","Accounting fraud"],ans:2,exp:"Phishing is an online identity theft scam that fools victims into submitting personal information to fraudulent websites."},
+
+{q:"Which of the following are examples of tax shelters?",opts:["Retirement funds and health-savings accounts","Real estate and stock ownership","Pension plans and capital gains","Municipal bonds and earned income"],ans:0,exp:"Retirement funds and health-savings accounts are tax shelters. Stocks, capital gains, and earned income are taxable."},
+
+{q:"One reason to be careful with oral communication in business is that it:",opts:["May not be remembered accurately","Should only be used for urgent messages","Is generally not misunderstood","Is an informal communication method"],ans:0,exp:"Listeners retain only about 25% of what they hear and frequently don't remember it accurately, making precise word choice important."},
+
+{q:"During a job interview, Christian looked down at his papers a few times. The interviewer most likely assumed he:",opts:["Was not really interested in the position","Was lying about his job qualifications","Lacked confidence in his own abilities","Was nervous or trying to recall information"],ans:3,exp:"It's very common for individuals to look away when trying to recall information or when feeling nervous, especially in interviews."},
+
+{q:"To defend your ideas in an objective and respectful way, you should:",opts:["Advise the other person that his/her opinion is illogical","Present facts that support your point of view","Use dramatic gestures to reinforce your message","Provide a rebuttal for everything the other person says"],ans:1,exp:"Having facts to support your idea makes others more likely to accept it. Telling others their opinion is illogical or refuting everything offends them."},
+
+{q:"Min frowns, smiles, scratches his head, and rubs his belly during his presentation. What speaking technique is he using?",opts:["Nonverbal communication","Eye contact","Comedy","Hand gestures"],ans:0,exp:"Facial expressions and gestures represent nonverbal communication. He uses more than just hand gestures—he uses facial expressions too."},
+
+{q:"What type of graphic is best to use when you want to illustrate a sequence of events in chronological order?",opts:["Pie chart","Timeline","Venn diagram","Bar chart"],ans:1,exp:"A timeline depicts events within a time period arranged in chronological order. Pie charts show parts of a whole; Venn diagrams show overlapping relationships."},
+
+{q:"When writing a persuasive business message, you should remember to:",opts:["Communicate your personal goals","Describe the benefits to the audience","Open the message with a meaningful quote","Place the least important information at the beginning"],ans:1,exp:"Communicating benefits is central to persuasive messages. Readers respond favorably when they know how an action will help them."},
+
+{q:"An executive summary should be:",opts:["Full of technical detail","Lengthy","Persuasive","Written in passive voice"],ans:2,exp:"Executive summaries should be convincing and persuasive. They should be concise, use active voice, and avoid technical jargon."},
+
+{q:"Customer relationship management increases sales and profits by increasing:",opts:["Prices","Customer loyalty","Product quality","Competition"],ans:1,exp:"CRM increases sales and profits by increasing customer loyalty. Over the long term, customer relationships drive sales and profit."},
+
+{q:"The advantage to businesses that use mobile-application technology is that their salespeople can obtain and send customer information from their:",opts:["Fax machines","Autoresponders","Data banks","Smartphones"],ans:3,exp:"Smartphones include internet access and applications for calling, checking email, verifying inventory, and placing orders from remote locations."},
+
+{q:"Which of the following is one of Noah's (financial planner) ethical responsibilities to his clients?",opts:["Being friends with his clients","Keeping client information confidential","Giving clients subjective information","Responding to clients on his own timeline"],ans:1,exp:"Keeping client information confidential is a core ethical responsibility. Clients cannot trust advisors who don't protect their privacy."},
+
+{q:"CRM software applications help businesses identify customers' needs and preferences, which enables them to:",opts:["Develop personalized messages","Update the business's income statement","Scan the environment for inconsistencies","Verify accounting procedures"],ans:0,exp:"CRM software identifies customer interests so businesses can develop targeted promotional messages or product updates tailored to each customer."},
+
+{q:"Businesses are affected by social factors in the external environment because:",opts:["Every business creates consumer products","Customer needs are affected by these factors as well","A business cannot survive without social networking","Customers no longer value quality"],ans:1,exp:"Meeting customer needs is every organization's prime goal, and customer needs are shaped by social factors in the environment."},
+
+{q:"When the government requires businesses to pay employees a minimum hourly wage, it is:",opts:["Regulating workplace conditions","Protecting business property","Conserving the environment","Providing public welfare programs"],ans:0,exp:"Minimum wage laws regulate workplace conditions, legally guaranteeing workers a living wage to meet basic survival needs."},
+
+{q:"Items most likely to be subject to an excise tax include:",opts:["Inherited items and luxury cars","Gasoline and cigarettes","Apartment buildings and single-family homes","Milk and cheese"],ans:1,exp:"Excise tax is often called a 'sin tax' and is levied on nonessential products like gasoline, cigarettes, alcohol, and luxury cars."},
+
+{q:"Fair salaries, competitive benefits, and safe working conditions are all important in creating a good:",opts:["Competitive advantage","Standard of living","Quality of work life","Division of labor"],ans:2,exp:"Quality of work life refers to the general conditions in which employees work. Standard of living refers to general living conditions."},
+
+{q:"Lei has just been informed her plant is getting new equipment that can do some employees' jobs. Which disadvantage of specialization is she most worried about?",opts:["Interdependency","Increased boredom on the job","Decreased pride in work","Job obsolescence"],ans:3,exp:"Job obsolescence occurs when a job becomes outdated due to advances in technology."},
+
+{q:"One reason the United States provides assistance to underdeveloped nations is because it:",opts:["Wants to learn about their technology","Wants to become an important world power","Hopes they will become trading partners","Is expected to do so"],ans:2,exp:"The U.S. assists developing nations hoping they will eventually become trading partners, helping both economies grow."},
+
+{q:"What type of currency system is most likely to benefit a small country that relies heavily on exports?",opts:["Pegged","Free floating","Speculative","Decentralized"],ans:0,exp:"A pegged currency system fixes a nation's currency value to another currency, stabilizing trade between two countries—beneficial for export-reliant economies."},
+
+{q:"When your self-concept is high, you usually believe that you are a(n) __________ person.",opts:["Valuable","Unimportant","Witty","Aggressive"],ans:0,exp:"Individuals with a high self-concept believe they can make significant contributions. Feeling unimportant indicates low self-concept."},
+
+{q:"Francesca returned to her previous car dealer because she could trust them to be honest and fair. In this case, integrity helped build:",opts:["A stable work environment","Relationships between coworkers","Francesca's personal ethics","Strong customer loyalty"],ans:3,exp:"Honesty and integrity build loyal customers who count on your company, encouraging repeat purchases."},
+
+{q:"To manage their work commitments in a timely manner, businesspeople should:",opts:["Work on enjoyable tasks before unpleasant tasks","Ask coworkers to help with routine activities","Estimate the time it takes to perform their tasks","Identify shortcuts to get work done quickly"],ans:2,exp:"Estimating task times helps plan, prioritize, and avoid scheduling activities too close together, which affects quality."},
+
+{q:"One of the benefits of negative feedback is that it:",opts:["Lets you know what is expected of you","Tells you what you are doing right","Keeps you from making mistakes","Makes you feel good about yourself"],ans:0,exp:"Negative feedback lets you know what you are doing wrong and what is expected, helping you improve despite being uncomfortable."},
+
+{q:"Which of the following is a true statement about effective communication?",opts:["Effective communication is a two-way process","It is up to the sender to facilitate effective communication","There are very few barriers to effective communication","People rarely make mistakes when communicating"],ans:0,exp:"Communication requires both a sender and receiver. Both are responsible for facilitating effective communication. Many barriers exist."},
+
+{q:"Which of the following is a factor that often leads to workplace stress and burnout?",opts:["Interpersonal conflict","Adequate compensation","Sufficient time to meet deadlines","High control of work assignments"],ans:0,exp:"Interpersonal conflict, inadequate compensation, unrealistic deadlines, and little control over assignments can all cause workplace stress and burnout."},
+
+{q:"What should you turn to if you are unsure of what to do or have a difficult decision to make?",opts:["Persistence","Ethics","Altruism","Credibility"],ans:1,exp:"Ethics are basic principles that govern behavior and guide actions, leading to better decision-making. Persistence, altruism, and credibility cannot always guide difficult decisions."},
+
+{q:"Which of the following leaders is most likely to inspire his/her employees to achieve?",opts:["Joon regularly sets high goals for team members","Jose encourages employees to use and develop their talents","Yamini works independently without help from others","Nick gives specific instructions on how to perform work"],ans:1,exp:"Inspirational leaders inspire others to reach their potential. Encouraging use of talents actively inspires employees. Setting goals improves performance but isn't inspiration."},
+
+{q:"Because they are clear and describable, excellent visions are:",opts:["Very specific","Long term","Uninspiring to team members","Able to be summed up concisely"],ans:3,exp:"Because excellent visions are clear and describable, they can be summed up concisely and shared with anyone inside or outside the team."},
+
+{q:"Jeremy is basically healthy, but his coworker suffers from various chronic illnesses. They differ in what way?",opts:["Education","Age and gender","Ethnicity","Physical abilities and health"],ans:3,exp:"Jeremy and his coworker differ in physical abilities and health. They may or may not differ in age, gender, ethnicity, or education."},
+
+{q:"Determining the needs of others sometimes includes:",opts:["Making a written list of potential outcomes","Creating knowledge gaps","Treating two people differently in the same situation","Putting yourself first"],ans:2,exp:"Determining others' needs sometimes means treating people differently in the same situation—like talking to a 5-year-old differently than a 15-year-old."},
+
+{q:"During the discovery process, an entrepreneur must determine whether the proposed business venture will:",opts:["Require financial risk","Generate large profits","Create loyal customers","Meet a need or a want"],ans:3,exp:"During discovery, entrepreneurs ensure the business idea meets an actual consumer need or want. All ventures carry financial risk, so discovery of that is not needed."},
+
+{q:"Barry gives the pizza delivery person $15 and gets a pepperoni pizza in return. Barry is using money as a:",opts:["Store of value","Medium of exchange","Loan","Medium of barter"],ans:1,exp:"When money is exchanged for goods or services, it is a medium of exchange. Bartering occurs without money."},
+
+{q:"Which of the following is categorized as a fixed expense in a personal budget?",opts:["Clothing","Groceries","Home repairs","Car payment"],ans:3,exp:"Fixed expenses don't fluctuate month to month. Car payments, insurance, and rent are fixed. Groceries, clothing, and home repairs vary."},
+
+{q:"Late fees, interest charges, and difficulty qualifying for loans are all possible results of:",opts:["Paying credit card bills","Dropping out of school","Using credit poorly","Going to college"],ans:2,exp:"Using credit poorly can result in late fees, interest charges, and credit score decreases that make qualifying for loans difficult."},
+
+{q:"What does the credit rating of a financial institution indicate to savers and investors?",opts:["The return rate for specific mutual funds","How risky it is to provide the financial institution with funds","The amount of funds the bank lends to other institutions","When the institution expects a return on investment"],ans:1,exp:"Credit ratings let savers and investors know how safe or risky it is to provide funds to a financial institution."},
+
+{q:"Which of the following are common categories of commodities?",opts:["Energy, grains, and consumer goods","Energy, metals, and consumer goods","Energy, metals, and grains","Metals, grains, and consumer goods"],ans:2,exp:"Commodities are commonly categorized as energy, metals, and agricultural products (including grains). Consumer goods are finished products, not commodities."},
+
+{q:"Which of the following is an example of bancassurance?",opts:["Cover Yourself Insurance manages a pension for XYZ Corp","A Good Cents Bank employee sells CDs to a customer","A Dollars R Us Bank employee sells an auto-insurance policy","BBB Insurance processes a small-business loan"],ans:2,exp:"Bancassurance is the sale of insurance products by a bank. A bank employee selling auto insurance to a customer is bancassurance."},
+
+{q:"Stocks in which industry sector are least likely to be affected by changes in the business cycle?",opts:["Health care","Energy","Technology","Capital goods"],ans:0,exp:"Health care, food, and tobacco are noncyclical—demand remains steady regardless of the business cycle. Energy, technology, and capital goods are cyclical."},
+
+{q:"A disadvantage of financial globalization is that:",opts:["Transaction costs have increased","Investors have limited options","Reporting requirements vary greatly by country","Financial markets have become less liquid"],ans:2,exp:"Each country has different financial reporting requirements, making it difficult to obtain and disseminate needed information across borders."},
+
+{q:"Publicly-traded companies are required by law to provide:",opts:["Company report cards","Stock research","Financial statements","Yearly newsletters"],ans:2,exp:"Publicly-traded companies must provide financial statements to shareholders every 90 days by law."},
+
+{q:"Kelly's stock has a dividend per share of $1.80 and a closing price of $28.20. What is the yield percentage?",opts:["4.8","6.4","6.1","4.6"],ans:1,exp:"Yield = Dividend per share / Closing price = $1.80 / $28.20 = 0.0638 = 6.4%"},
+
+{q:"What type of insurance provides financial support to loved ones in the event of your death?",opts:["Renter's insurance","Disability insurance","Health insurance","Life insurance"],ans:3,exp:"Life insurance ensures loved ones receive financial support after death. Disability covers inability to work; health covers medical expenses."},
+
+{q:"If you are trying to create a personal budget, which financial information is relevant?",opts:["A sample budget found online","A record of your monthly income","Your employer's assets and liabilities","Your best friend's cell phone bill"],ans:1,exp:"A record of your monthly income is necessary to know how much you can afford to spend. Employer assets and others' bills are irrelevant."},
+
+{q:"An important aspect of upholding ethical accounting standards involves the ability to be:",opts:["Unconventional","Resourceful","Intolerant","Objective"],ans:3,exp:"Accountants must provide accurate, objective (unbiased) financial information. Being objective means not being influenced by bias or outside opinion."},
+
+{q:"Which of the following are examples of cash outflows?",opts:["Payroll, stocks, and product sales","Supplies, loans, and earned interest","Rent, utilities, and supplies","Utilities, sale of assets, and payroll"],ans:2,exp:"Cash outflows are business expenses: rent, utilities, and supplies. Loans, interest, sales, and asset sales are cash inflows."},
+
+{q:"Which group of people is most likely to be interested in the statement of changes in equity?",opts:["Investors","Customers","Competitors","Employees"],ans:0,exp:"The statement of changes in equity provides information about shareholders' ownership. Investors want to know how their accounts have changed over time."},
+
+{q:"If a decision maker chooses a software package with a lower initial purchase price, what type of cost has s/he considered?",opts:["Sunk cost","Indirect cost","Direct cost","Opportunity cost"],ans:2,exp:"The initial purchase price is a direct cost—directly associated with the cost object (the software package)."},
+
+{q:"The main objective of using marginal analysis in decision-making is to determine whether a business activity will result in:",opts:["A marginal expense greater than marginal cost","A marginal revenue smaller than marginal cost","A marginal revenue equal to or greater than marginal cost","A net revenue larger than marginal revenue"],ans:2,exp:"Marginal analysis determines if marginal revenue equals or exceeds marginal cost. If cost is greater, the activity is not profitable."},
+
+{q:"Which example best illustrates the purpose of variance analysis?",opts:["Tariq made suggestions regarding pricing strategy","Shamaya figured out which product line would be most profitable","Carter determined that storage costs exceeded the budgeted amount","Eileen informed her manager how much money was left for travel"],ans:2,exp:"Variance analysis compares actual costs to budgeted amounts. Carter's discovery that storage costs exceeded budget illustrates this purpose."},
+
+{q:"When a business uses its budget to monitor and avoid excessive spending, it is using the budget as a(n):",opts:["Financial control tool","Performance evaluation","Business plan","Operating plan"],ans:0,exp:"Using a budget to monitor spending and ensure a department doesn't overspend is using it as a financial control tool."},
+
+{q:"If a company's decision makers all require different information about sales transactions, the company relies on __________ accounting.",opts:["Cost","Financial","Quality management","Managerial"],ans:3,exp:"Managerial accounting reports financial and nonfinancial information tailored to different decision makers within the company."},
+
+{q:"A company purchases software and divides the cost between two departments that will use it. This is an example of cost:",opts:["Precision","Accumulation","Dividing","Allocation"],ans:3,exp:"Cost allocation assigns costs to cost objects such as departments. Dividing the software cost between departments is cost allocation."},
+
+{q:"How much will $5,000 be worth in five years if invested at an 8% compound interest rate?",opts:["$7,347","$5,400","$5,045","$8,000"],ans:0,exp:"FV = $5,000 × (1.08)⁵ = $5,000 × 1.46933 = $7,346.65 ≈ $7,347"},
+
+{q:"Developing an effective system to gather, organize, and store financial information helps a business evaluate:",opts:["The productivity rates of its human resources","Its financial well-being at any given time","The need for depreciation tables","Its ability to collaborate with vendors"],ans:1,exp:"A business needs current, relevant financial information to effectively monitor its financial status and make appropriate decisions."},
+
+{q:"Which of the following can be used to identify the unethical manipulation of records in a financial-information management system?",opts:["What-if planning","Audit trails","Long-term liabilities","Direct checks"],ans:1,exp:"Audit trails record each step of financial transactions, so even if records are erased, a record of the erasure remains."},
+
+{q:"An internal database with relevant financial data in a central location supports a business's ability to:",opts:["Share information","Monitor competitors","Install security measures","Develop contracts"],ans:0,exp:"Central databases allow multiple qualified users to access financial data simultaneously, supporting information sharing and collaboration."},
+
+{q:"Use of budgeting applications that provide real-time data helps companies:",opts:["Respond quickly to changes in the business environment","Provide information annually to decision makers","Secure departmental data from other departments","Increase the amount of line items in the budget"],ans:0,exp:"Real-time data allows decision makers to make changes in response to current business conditions rather than waiting for annual reports."},
+
+{q:"Seth's manager asked him to compare their company's fourth-quarter performance with others in its industry. Which financial-analysis software feature should he use?",opts:["Ratio analysis","Benchmarking","DuPont modeling","Forecasting"],ans:1,exp:"Benchmarking compares a company's performance with specific companies in its industry or with industry standards."},
+
+{q:"Lean operations focus on increasing efficiency by reducing __________, while Six Sigma focuses on continuously improving __________ throughout the business.",opts:["Automation, standards","Wages, automation","Waste, quality","Standards, waste"],ans:2,exp:"Lean eliminates waste. Six Sigma is a quality-management framework that continuously sets higher goals of perfection."},
+
+{q:"Which of the following are factors that affect a business's decision to offer credit to a customer?",opts:["Income, debt ratio, and credit rating","Debt ratio, credit rating, and education","Credit rating, objectives, and income","Debt ratio, education, and objectives"],ans:0,exp:"Income, debt ratio, and credit rating indicate whether a customer is a good credit risk. Education and objectives are not primary factors."},
+
+{q:"After Taylor puts in her two weeks' notice, her HR manager schedules a talk about why she's leaving. This is considered a(n) __________ interview.",opts:["Recruiting","Exit","Orientation","Onboarding"],ans:1,exp:"Exit interviews gauge employee attitudes about a company, gain constructive suggestions, and help understand employee turnover."},
+
+{q:"Which of the following is a situational influence on buying behavior?",opts:["Choosing a car because it's what your dad has","Spending more than usual on a necklace because it's a gift","Buying kosher food due to religious beliefs","Preferring different jeans than when you were younger"],ans:1,exp:"Spending more because it's a gift is situational—certain situations override other influences like culture or psychology."},
+
+{q:"Natalie can save time and easily return to websites she frequently visits by using the __________ tool on her Internet browser.",opts:["Sorting","Highlighting","Bookmarking","Classifying"],ans:2,exp:"Bookmarking saves URL addresses so users can quickly return to frequently visited websites without reentering the address."},
+
+{q:"Companies are required to manage financial information in specific ways to:",opts:["Enable employees to work remotely","Comply with government regulations","Prioritize information in order of importance","Lessen the effects of information overload"],ans:1,exp:"Governments regulate how companies record, maintain, and store business information. Noncompliance can result in fines and legal action."},
+
+{q:"Claire has an email requesting information unavailable until next week. What can she do to remind herself to respond?",opts:["Place the client's name in her address book","Forward the message to her supervisor","Flag the message for follow-up","Move the message to her spam folder"],ans:2,exp:"Flagging a message for follow-up reminds the recipient to respond at a later time, often with color-coded visual reminders."},
+
+{q:"Who is responsible for approving corporate governance goals and policies?",opts:["Shareholders","Chief executive officer","Board of directors","Management team"],ans:2,exp:"The board of directors approves high-level corporate governance goals and policies. The CEO and management recommend goals for board approval."},
+
+{q:"The purpose of data normalization is to:",opts:["Delete conforming data","Increase data redundancy","Improve data integrity","Remove new types of data"],ans:2,exp:"Data normalization improves data integrity by reducing redundancy, removing anomalies, and making it easier to accommodate new types of data."},
+
+{q:"The purpose of descriptive analysis is to summarize the past, whereas the purpose of predictive analysis is to:",opts:["Hypothesize why the past happened the way it did","Predict what could have happened if the past were different","Use existing data to forecast what could happen in the future","Verify that the descriptive analysis was accurate"],ans:2,exp:"Predictive analysis uses historical data to forecast what is most likely to occur in the future."},
+
+{q:"Changing attitudes about family roles is an example of a shift in:",opts:["Demographics","Society and culture","The economy","Competition and environmental shifts"],ans:1,exp:"Changing cultural attitudes about family roles represent a shift in society and culture. Demographics involve physical/social characteristics like age and gender."},
+
+{q:"Determine the mode for: 7, 5, 3, 7, 7, 9, 5, 7, 9, 9",opts:["3","7","5","9"],ans:1,exp:"Mode is the most frequently occurring number. 7 appears 4 times, 9 appears 3 times, 5 appears 2 times, 3 appears once. Mode = 7."},
+
+{q:"When should Jackie read the instructions for the heat press, vinyl cutter, and printer for his T-shirt business?",opts:["When any of the equipment malfunctions","Before using the equipment for the first time","Never; he can figure out the equipment on his own","When he hires his first employee"],ans:1,exp:"Reading instructions prior to use ensures proper and safe operation, saving time, energy, and trouble in the long run."},
+
+{q:"What is needed to effectively handle situations such as fire, injury, bomb threats, and robbery on business property?",opts:["An evacuation map","An operating strategy","A surveillance system","An emergency plan"],ans:3,exp:"Comprehensive emergency plans contain policies and procedures for many types of incidents, including fires, injuries, and robberies."},
+
+{q:"A business can protect its confidential computer information from unauthorized users by:",opts:["Conducting annual virus scans","Developing Internet message boards","Encrypting computer files","Classifying business data"],ans:2,exp:"Encryption transforms information into a secret code readable only by specified individuals, protecting it from unauthorized internal and external access."},
+
+{q:"When you monitor projects and make appropriate corrections, this affects team members by:",opts:["Building stronger team relationships","Motivating them by reducing stress and building confidence","Discouraging them from feeling accountable","Helping them learn from their mistakes"],ans:1,exp:"When corrections keep a project running smoothly, team members feel less stressed and more capable, increasing motivation."},
+
+{q:"Which of the following is a true statement regarding a project champion?",opts:["S/He is the same person as the project manager","S/He can mobilize the necessary resources to get the project done","S/He is usually a low-ranking employee","S/He is closely involved in the work of the project"],ans:1,exp:"The project champion is a high-ranking person who sponsors the project and can mobilize resources, but isn't directly involved in the work."},
+
+{q:"The Taguchi quality-control method focuses on:",opts:["Reducing waste","Conformance to standards","Product design and development","Manufacturing processes"],ans:2,exp:"The Taguchi method focuses on product design and development, not on manufacturing processes or conformance to standards."},
+
+{q:"Considered together, salaries and sales commissions are a:",opts:["Direct production cost","Capital expenditure","Semi-fixed expense","Type of payroll tax"],ans:2,exp:"Salaries and commissions together are a semi-variable (semi-fixed) expense—part fixed (salary) and part variable (commission)."},
+
+{q:"A company's manager did not protect confidential information about a conflict between two employees. What is a likely consequence?",opts:["Costly lawsuits","Loss of clients","Damaged workplace environment","Claims of workplace discrimination"],ans:2,exp:"Disclosing employee conflict information damages workplace culture. Employees lose trust in management and may not feel unified or cooperative."},
+
+{q:"What is the purpose of an occupational interest inventory?",opts:["It predicts your possibilities of success","It tests individual skills and training","It measures your intelligence quotient","It shows the kind of work you might like"],ans:3,exp:"Occupational interest inventories ask about preferences for work activities to identify occupations that would interest you."},
+
+{q:"Caitlin tends to remain positive even when times are tough for her business. What characteristic of entrepreneurship is she exhibiting?",opts:["Innovation","Organization","Optimism","Determination"],ans:2,exp:"Optimistic entrepreneurs have a positive outlook and look for growth opportunities even when facing challenges and setbacks."},
+
+{q:"What is one thing that all potential employees should do when filling out a job application?",opts:["Leave questions blank","Provide specific salary requirements","Keep applications consistent with their résumés","Fill the application out as fast as possible"],ans:2,exp:"Keeping all information consistent between résumés and applications shows organization and trustworthiness."},
+
+{q:"Which of the following statements describes banking careers?",opts:["They can involve accepting deposits and lending funds","They primarily consist of bank tellers","They are only found at commercial banks","They are not found at credit unions or insurance companies"],ans:0,exp:"Banking careers involve many roles beyond tellers. They can be found at savings and loan associations, credit unions, and insurance companies."},
+
+{q:"What is a benefit of corporate governance?",opts:["Ability to bypass sustainability efforts","Increased distance from investors","Improved access to capital","Freedom from stakeholder interference"],ans:2,exp:"Well-governed companies receive higher market valuations and have increased capital flows due to greater accountability and transparency."},
+
+{q:"Which of the following is an external control used to govern companies?",opts:["Segregation of duties","Whistleblower policy","Safety laws","Managerial oversight"],ans:2,exp:"External controls are set by governments. Safety laws are external. Whistleblower policies, segregation of duties, and managerial oversight are internal."},
+
+{q:"Which employee reports directly to a corporation's board of directors?",opts:["Chief executive officer","Accounting manager","Vice president of operations","Director of sales"],ans:0,exp:"The CEO reports directly to the board. The VP of operations reports to the CEO. Accounting and sales directors are mid-level managers."},
+
+{q:"Where else could Eugenia include the name and date of her workshop besides the title slide?",opts:["Headers","Footers","Animations","Transitions"],ans:1,exp:"Footers appear at the bottom of slides and can include the presentation name, date, and slide numbers."},
+
+{q:"Jan has been helping Sarah with professional advice, feedback, and encouragement. Jan is Sarah's:",opts:["Mentor","Supervisor","Editor","Companion"],ans:0,exp:"A mentor is an experienced worker who acts as a guide to less experienced workers, providing advice, feedback, and encouragement."},
+
+{q:"Studies have shown that organizations with a strong code of conduct:",opts:["Are not honest or ethical","Have trouble attracting employees","Experience less misconduct","Experience decreased efficiency"],ans:2,exp:"Organizations with a strong code of conduct experience less misconduct, positively impacting overall performance."},
+
+{q:"Which of the following is a possible effect of bypassing the chain of command?",opts:["Your manager will appear to be a strong communicator","You may be considered for a promotion","Other employees may not trust you","You will appear to be a strong leader"],ans:2,exp:"Going against the chain of command can damage your reputation for reliability, causing other employees to distrust your intentions."},
+
+{q:"Which of the following is an example of acting ethically in regards to insurance?",opts:["Keeping insurance information concealed from staff","Maintaining the same policies for as long as possible","Obtaining the insurance required by law","Telling the whole truth to insurance agents"],ans:3,exp:"Risk managers must tell the truth to insurance companies. Misleading them is unethical."},
+
+{q:"What technology can businesses use to reduce the risk of network security breaches?",opts:["Pirated software programs","Teleprompter devices","Concurrency control applications","Intrusion detection systems"],ans:3,exp:"Intrusion detection systems monitor and detect computer hacking activities that compromise the security of business computer data."},
+
+{q:"Which of the following statements is true regarding risk retention groups?",opts:["They tend to pay higher licensing fees than traditional insurance companies","A risk retention group may insure companies from many different industries","Group members control risk by retaining equity and transferring liability","The insurance policy holders are also the company's stockholders"],ans:3,exp:"A risk retention group is owned by its members—the stockholders. As owners, they control their liability rather than transferring it."},
+
+{q:"The entire market has just collapsed. This is an __________ risk known as a(n) __________ factor.",opts:["Internal; economic","External; economic","External; political","Internal; technological"],ans:1,exp:"A market crash is external (outside the company) and economic (a change in market conditions)."},
+
+{q:"The ABC Corporation identifies all risks, decides which to focus on, and shares information with stakeholders. The company is practicing:",opts:["Environmental risk planning","Corporate risk organization","Competitive risk assessment","Enterprise risk management"],ans:3,exp:"Enterprise risk management involves identifying all risks, deciding which to focus on, and sharing that information with stakeholders."},
+
+{q:"Which of the following is an example of an external financial risk that a company might experience?",opts:["Poorly produced products","Significant accounting errors","Poor budgeting and planning","Change in currency exchange rates"],ans:3,exp:"A change in currency exchange rates is outside a company's control and is therefore an external risk. Accounting errors, poor budgeting, and poor products are internal risks."},
+
+// 2020 HS ICDC
+
+{q:"Sheree asked her attorney to prepare a document to protect her famous chicken noodle soup recipe. This document is designed to protect Sheree's:",opts:["Copyright","Trade secret","Trademark","Patent"],ans:1,exp:"A trade secret is undisclosed information that gives a business a competitive advantage. Recipes can be protected as trade secrets."},
+
+{q:"What is typically the most significant role of a compliance officer in a bank, investment company, or insurance company?",opts:["To ensure that the company is following financial laws","To enforce the business's code of conduct","To educate employees on industry ethics","To ensure employees follow company policies and procedures"],ans:0,exp:"Compliance officers in financial services are primarily responsible for ensuring the company follows financial laws and external regulations."},
+
+{q:"An annual audit is an example of a(n) __________ internal control.",opts:["Corrective","Detective","Reconciliation","Preventative"],ans:1,exp:"Detective controls like annual audits identify existing financial problems. Preventive controls prevent errors. Corrective controls fix identified errors."},
+
+{q:"Which of the following is a benefit of using artificial intelligence in compliance?",opts:["Increases costs","Increases false positives","Reduces human error","Reduces efficiency"],ans:2,exp:"AI technology increases efficiency, lowers the chance for human error, and decreases false positives in compliance systems."},
+
+{q:"Mooreshead Bank has placed a claim on Marc's property to protect itself from financial loss if Marc can't pay back his loan. Mooreshead has secured a __________ against Marc's property.",opts:["License","Lien","Label","Ledger"],ans:1,exp:"A lien is a legal claim to a property that protects the creditor from financial loss if the borrower doesn't complete payments."},
+
+{q:"Charlotte provides investing advice to clients, discusses their goals, and helps select investments best for them. Charlotte acts as her clients':",opts:["Credit analyst","Accountant","Fiduciary","Institutional investor"],ans:2,exp:"A fiduciary acts on behalf of another person and manages financial assets in the client's best interest."},
+
+{q:"Robert learned about upcoming layoffs and sold his stock options before the news went public, telling friends to do the same. This is an example of:",opts:["Extortion","Corporate espionage","Corporate fraud","Insider trading"],ans:3,exp:"Insider trading occurs when someone trades stock based on non-public information. Robert's actions and tipping off friends are both illegal insider trading."},
+
+{q:"Raheem sold an investment he owned for five years for considerably more than he paid. He is likely to owe __________ tax on the profit.",opts:["Income","Long-term capital gains","Short-term capital gains","Excise"],ans:1,exp:"Investors pay long-term capital gains tax on assets owned more than a year. Short-term applies to assets held one year or less."},
+
+{q:"What is a benefit of having established policies for taking breaks and requesting time off?",opts:["Less confusion among employees","More power for management","More open door policies","Fewer government incentives"],ans:0,exp:"Clear policies set expectations, reducing confusion. Employees who understand break and time-off policies tend to be more productive."},
+
+{q:"Which is a good way to end a business phone call?",opts:["Offer your email address if the caller needs additional information","List all of the points made in the call","Make small talk about the caller's day","Wait for the caller to speak before deciding the call is over"],ans:0,exp:"Providing your email creates another line of communication and politely signals the call is ending without being abrupt."},
+
+{q:"What should be included early in a written report?",opts:["A description of the research method and findings","A broad sentence detailing numerous arguments","A listing of the printed and online sources cited","A specific sentence that highlights the main idea of the report"],ans:3,exp:"The introduction should include a specific sentence detailing the main idea or purpose of the report."},
+
+{q:"A video conference call is a __________ channel of communication.",opts:["Lean","Rich","Slight","Detailed"],ans:1,exp:"A rich communication channel involves multiple senses (sight and hearing). A video call lets you see faces and hear voices."},
+
+{q:"A magazine advertisement is an example of:",opts:["Word-of-mouth marketing","Publicity","A touchpoint","A brand promise"],ans:2,exp:"A touchpoint is any interaction between a business and a customer or potential customer. Ads, publicity, and word-of-mouth are all touchpoints."},
+
+{q:"Which form of customer management is most likely to look outward and have a customer-centric focus?",opts:["Customer relationship management","Customer experience management","Structured customer management","Inverse customer management"],ans:1,exp:"Customer experience management (CEM) looks outward with a customer-centric focus. CRM tends to look inward, using touchpoints to learn about the customer."},
+
+{q:"What is the primary role of financial planners?",opts:["To ensure businesses are compliant with government regulation","To make the most money for their own firms","To trade with other planners in the stock market","To help clients make wise investments and prepare for the future"],ans:3,exp:"Financial planners help clients make smart financial choices, particularly wise investments and preparation for the financial future."},
+
+{q:"What is the primary purpose of customer-relationship management technology?",opts:["To compile a mass email list","To make phone calls to keep customers interested","To archive past sales only","To establish stronger connections with customers"],ans:3,exp:"CRM technology helps businesses build, maintain, and maximize long-term customer relationships through information and targeted communication."},
+
+{q:"Businesses use marginal analysis for the purpose of:",opts:["Maximizing profit","Increasing productivity","Eliminating mistakes","Maintaining reputation"],ans:0,exp:"Marginal analysis assesses the potential benefits of a business activity compared to its costs, helping businesses make decisions that maximize profit."},
+
+{q:"Valerie can now order her favorite beach candy online and have it whenever she wants. This is an example of how:",opts:["Utility is constant and unchanging","Place utility is not important","Business can create form utility","The Internet has changed utility"],ans:3,exp:"The Internet has changed place utility—customers can get products they want regardless of physical distance from the business."},
+
+{q:"A company moves manufacturing to another country to pay employees much less. What reason might they use to defend themselves?",opts:["The action is acceptable in a foreign culture","The action is committed by unethical employees","The action is beneficial for employees","The action results in a negative public image"],ans:0,exp:"What is considered unethical in America may be acceptable in another culture, particularly regarding wages and working conditions in developing countries."},
+
+{q:"A company's board of directors is often responsible for __________ and __________ the top executives.",opts:["Encouraging; shadowing","Supporting; assessing","Replacing; auditing","Promoting; networking"],ans:1,exp:"The board of directors hires, supports, and assesses the performance of top executives to ensure organizational goals are met."},
+
+{q:"In the 1970s, OPEC increased oil prices as political protest, pushing up costs of many U.S. goods. This is an example of:",opts:["Cost-push inflation","Demand-pull deflation","Cost-push deflation","Demand-pull inflation"],ans:0,exp:"Cost-push inflation occurs when commodity prices increase, driving up the costs of related goods and services throughout the economy."},
+
+{q:"The biggest traders of currency on the foreign exchange market are:",opts:["Individual traders","Commercial and investment banks","Investment funds","Businesses and corporations"],ans:1,exp:"Banks make up about half of forex trading volume, trading on interbank markets for clients and for speculative profit."},
+
+{q:"Jackson is sure that no one will notice if he steals merchandise from his employer. He is facing an ethical dilemma because of:",opts:["A bad role model","A lack of consequences","Pressure from others","A desire to prove himself"],ans:1,exp:"The threat of punishment keeps most people honest. If Jackson believes he won't get caught, he may be tempted to steal."},
+
+{q:"Which strategy can help you develop cultural sensitivity in the workplace?",opts:["Reading about different cultures","Pretending cultural differences do not exist","Asking everyone to dress the same","Joking about every culture equally"],ans:0,exp:"Educating yourself about other cultures through reading, attending cultural events, or diversity training builds cultural sensitivity."},
+
+{q:"Which of the following is an advantage of transparent communication in the workplace?",opts:["Increased information security","Increased worker productivity","Increased employee turnover","Increased manager turnover"],ans:1,exp:"Transparent communication allows employees to ask questions and reduces misunderstandings, leading to a more productive work environment."},
+
+{q:"Which of the following is an effective approach to negotiation?",opts:["Be willing to adjust your strategy based on the other side's approach","Do not have a specific goal or target in mind","Display strong emotional reactions","Try to trick the other side with carefully chosen language"],ans:0,exp:"Effective negotiators are aware of the other side's tactics and willing to adjust their strategy while maintaining their objectives."},
+
+{q:"Which statement best describes office politics?",opts:["Engaging in office politics will advance your career","Office politics are negative and should be avoided","Engaging in office politics can be beneficial","Office politics are damaging to work relationships"],ans:2,exp:"Office politics exist in almost every workplace and can be beneficial when used for positive networking and relationship-building."},
+
+{q:"How are vote taking and consensus building different?",opts:["In consensus building, every group member must agree on a decision","In vote taking, every group member must agree on a decision","In vote taking, a minority of group members make a decision","In consensus building, a minority of group members make a decision"],ans:0,exp:"In consensus building, every group member must agree before a decision is made. In vote taking, the majority rules even if some disagree."},
+
+{q:"Why do active listeners paraphrase what a speaker has said?",opts:["To help the listeners recognize the speaker's nonverbal cues","To help the speaker learn how to speak more clearly","To show that they agree with the speaker's message","To confirm the speaker's message and show understanding"],ans:3,exp:"Paraphrasing confirms the speaker's message and demonstrates understanding. It does not necessarily indicate agreement."},
+
+{q:"Which of the following is most likely to limit your ability to assess the long-term impact of a decision?",opts:["Negative outcomes","Personal experience","Positive outcomes","Personal bias"],ans:3,exp:"Personal bias can prevent considering the full impact of decisions. Personal experience can actually be helpful in assessing long-term impact."},
+
+{q:"What do open-end investment funds and closed-end investment funds have in common?",opts:["They can issue an unlimited number of shares over time","They are run by professional portfolio managers","Their pricing is determined by supply and demand","They are also known as mutual funds"],ans:1,exp:"Both types must be professionally managed by an advisor registered with the SEC. Only open-end funds can issue unlimited shares; only open-end funds are mutual funds."},
+
+{q:"Sam participates in the London Stock Exchange, where investors trade stock among themselves without involvement from issuing companies. This best describes a:",opts:["Virtual market","Primary market","Secondary market","Tertiary market"],ans:2,exp:"The secondary market is where investors trade securities after companies sold them on the primary market. It includes major stock exchanges."},
+
+{q:"Which of the following is true about the debt market?",opts:["It is known for being unstable by nature","It is commonly called the stock market","Its participants may benefit from dividends","Its investments typically involve less risk"],ans:3,exp:"The debt market is known for lower risk and lower reward compared to the equity (stock) market. Dividends are equity market benefits."},
+
+{q:"One risk of business consolidation is:",opts:["Growth of market share","Elimination of redundancy","Diversification of products","Clashes in corporate culture"],ans:3,exp:"When two businesses merge, different corporate cultures can clash. Without addressing these differences, the consolidation might fail."},
+
+{q:"Clara works for a bank that now sells insurance products to its clients. This is known as a __________ arrangement.",opts:["Bait-and-switch","BATNA","Brick-and-click","Bancassurance"],ans:3,exp:"Bancassurance is the sale of insurance products by a bank, allowing banks to profit from additional revenue and increase customer satisfaction."},
+
+{q:"A country's unemployment rate impacts the economy because when people are unemployed, they lose their:",opts:["Absolute advantage","Individual identity","Purchasing power","Corporate connection"],ans:2,exp:"Unemployed people lose income and the opportunity to contribute to the economy through purchasing power."},
+
+{q:"James demonstrates home bias in his investments, which means he:",opts:["Is limited by the markets of foreign countries","Maintains a diversified investment portfolio","Takes advantage of increased financial globalization","Could be heavily affected by a domestic market event"],ans:3,exp:"Home bias means investing primarily in domestic equities. This concentration means a single domestic market event can heavily affect the portfolio."},
+
+{q:"Ann-Marie is preparing an annual report. While many might look at it, her main audience is:",opts:["The CEO","Customers","Possible employees","Shareholders"],ans:3,exp:"Annual reports contain financial information required for stakeholders who have invested in the company. Shareholders are the primary audience."},
+
+{q:"If a company wants to list securities on the New York Stock Exchange, it must select a __________ ticker symbol.",opts:["4-letter","Double digit","Unique","Color"],ans:2,exp:"Ticker symbols are unique series of characters assigned to a security—no two are the same. The NYSE uses alphabetical symbols up to three letters."},
+
+{q:"Corinne has decided to put her money into a lending investment. Which might she choose?",opts:["Collectibles","Stocks","Bonds","Real estate"],ans:2,exp:"Bonds are lending investments where you lend money to a government or corporation at a set interest rate. Stocks, collectibles, and real estate are ownership investments."},
+
+{q:"How can accountants demonstrate due care?",opts:["Request competitive compensation","Serve local communities for free","Refrain from making any mistakes","Engage in professional development"],ans:3,exp:"Due care means performing the role of accountant as well as possible by continuously deepening knowledge and skills through professional development."},
+
+{q:"Which of the following is a source of cash that flows into a business?",opts:["Loans","Taxes","Payroll","Rent"],ans:0,exp:"Loans bring money into a business. Taxes, payroll, and rent are examples of cash that flow out of a business."},
+
+{q:"Jane examined the equity statement for a company in which she invested to see her:",opts:["Par value","Retained earnings","Treasury stock","Dividends"],ans:3,exp:"Dividends are payments made to investors. Retained earnings and treasury stock appear on equity statements but belong to the company, not investors."},
+
+{q:"The Kodiak Company does not pay dividends. In which equity statement component would this money appear instead?",opts:["Treasury stock","Outstanding shares","Retained earnings","Cash flow"],ans:2,exp:"Retained earnings reflect income the company keeps. If dividends aren't paid, that money is retained earnings."},
+
+{q:"In general, what is the relationship between finance managers and accountants?",opts:["Finance managers determine what monetary records accountants keep","Accountants approve the decisions that finance managers make about money","Accountants record the information that finance managers need to make decisions","Finance managers rely on accountants to decide on the acquisition of funds"],ans:2,exp:"The accounting function records and generates the information needed to plan and make decisions in the finance function."},
+
+{q:"One key difference between out-of-pocket costs and sunk costs is:",opts:["Value","Timing","Accessibility","Ownership"],ans:1,exp:"Out-of-pocket costs must be paid now or in the future. Sunk costs have already been incurred. The difference is timing."},
+
+{q:"A manager must decide whether to make products in-house or outsource. The company's committed costs are likely to be:",opts:["Relevant costs","Irrelevant costs","Cash inflows","Cash receipts"],ans:1,exp:"Committed costs are already set aside for a future expense and cannot be altered. Since they can't be changed, they are irrelevant to the decision."},
+
+{q:"A company is choosing between two CRM software options with different cost structures. Which technique would help determine which is more cost-effective?",opts:["Marginal analysis","Return on investment","Vertical analysis","Sales forecasting"],ans:0,exp:"Marginal analysis compares relevant costs of each alternative to determine the difference in cost, helping make the most cost-effective decision."},
+
+{q:"What is one way in which CRM data cleansing is useful to businesses?",opts:["Data cleansing helps businesses create duplicate data","CRM software has a limited data capacity","Data cleansing helps businesses archive old data","CRM software lengthens sales cycles"],ans:2,exp:"Data cleansing archives old data and removes inaccurate/duplicate information, typically reducing wasted time and shortening sales cycles."},
+
+{q:"Managerial accountants provide assistance to management by:",opts:["Calculating probability of risky events","Preparing financial statements for public review","Gathering information on social media trends","Accumulating data on costs and profits"],ans:3,exp:"Managerial accountants accumulate data on business costs and profits to help managers make informed decisions."},
+
+{q:"Variance analysis documents the difference between actual and planned behavior and:",opts:["Investigates why that discrepancy occurred","Arranges this information for public review","Changes operations to address any issues","Suspends activity until numbers are aligned"],ans:0,exp:"Variance analysis identifies discrepancies and provides an explanation for why and how the difference happened."},
+
+{q:"Material, labor, and overhead are all components that might be the focus of:",opts:["Performance evaluation","Marketing management","Variance analysis","Sales reporting"],ans:2,exp:"Variance analysis focuses on discrepancies between actual and planned behavior, including material, labor, and overhead costs."},
+
+{q:"Cost accounting budgets allow __________ to __________.",opts:["Management; anticipate future advertising costs","Management; consider a business's total cost of production","Stakeholders; anticipate future advertising costs","Stakeholders; consider a business's total cost of production"],ans:1,exp:"Cost accounting is a form of managerial accounting providing leadership with information about total production costs (labor, materials, overhead, etc.)."},
+
+{q:"The main difference between managerial accounting and financial accounting is the __________ of the information.",opts:["Arrangement","Scope","Audience","Quality"],ans:2,exp:"Financial accounting provides information to external audiences. Managerial accounting provides information to internal company leadership."},
+
+{q:"In a company of 100 people, Tess's department has 10 employees and is responsible for 10% of insurance costs. This is an example of:",opts:["Cost estimate","Cost allocation","Cost per contact","Cost-effective pricing"],ans:1,exp:"Cost allocation divides costs between entities—here by headcount. 10% of employees means 10% of insurance costs."},
+
+{q:"A successful budget should be:",opts:["Rigid","Well planned","Secret","Aggressive"],ans:1,exp:"Budgets should be well planned based on knowledge, past budgets, and external factors. They should be flexible, communicated, and realistic."},
+
+{q:"When calculating the future value of money, you will need to know the:",opts:["Par value and interest rate","Present value and interest rate","Present value and exchange rate","Par value and exchange rate"],ans:1,exp:"FV = Present Value × (1 + Interest Rate). You need present value and interest rate. Par value applies to bonds; exchange rate applies to currency."},
+
+{q:"Ajay just won $100. To maximize the value of his money, when should he accept it?",opts:["Now","In six months","In one year","In five years"],ans:0,exp:"The time value of money means money now is worth more than the same amount later because of its earning potential. Accept it now."},
+
+{q:"Without accurate financial records, it is difficult to demonstrate __________ to __________.",opts:["Incentives; tax collectors","Product specifications; vendors","Product benefits; customers","Profitability; investors"],ans:3,exp:"Accurate financial records demonstrate a business's profitability to potential investors who want assurance before financing the company."},
+
+{q:"Which of the following is a common challenge for financial-information management?",opts:["Financial managers typically use Microsoft Office for recordkeeping","Many financial data are stored in custom software and are not easily accessible","Financial-information management focuses on protecting customer financial data","Managerial accountants prepare information for use by external stakeholders"],ans:1,exp:"Many companies house financial data in custom task-specific software, making it difficult for others without that software to access it."},
+
+{q:"Which of the following is a potential consequence of a company being accused of unethical accounting practices?",opts:["Increased employee loyalty","Stock price instability","Increased public faith","Shareholder incentives"],ans:1,exp:"When investors sell stock due to unethical accounting accusations, rapid price drops can create further instability as more investors sell."},
+
+{q:"What is a way in which technology has improved the management of financial information?",opts:["Data are transferred instantly from information management to point-of-sale systems","The security of financial information is no longer a concern","Calculations can be completed more quickly and efficiently","The amount of time required to compare financial records has increased"],ans:2,exp:"Technology enables faster, more efficient financial calculations. Security remains a concern; data generally flows from point-of-sale to information management, not the reverse."},
+
+{q:"What are the basic components of a business budget?",opts:["Fixed costs, variable costs, and semi-variable costs","Total revenues, total costs, and profit","Inventory, variable costs, and profits","Fixed assets, inventory, and investments"],ans:1,exp:"The basic budgeting equation is: Total Revenues - Total Costs = Profit. Fixed, variable, and semi-variable costs combine to make total costs."},
+
+{q:"Which type of financial analysis is best for comparing a single company's historical financial information to determine trends?",opts:["Vertical analysis","Horizontal analysis","Leverage analysis","Liquidity analysis"],ans:1,exp:"Horizontal analysis compares a single company's income statements over multiple years to determine trends and forecast future performance."},
+
+{q:"Which is a reason to calculate a company's debt-to-equity (D/E) ratio?",opts:["To compare multiple companies in different industries","To assess the level of risk involved in investing in the company","To compare the current year's performance to a previous year's","To assess the ability of a company to hire more employees"],ans:1,exp:"A high D/E ratio suggests higher investment risk because much of the financing has been done through borrowing."},
+
+{q:"In the lean approach to accounting, inventory is treated as a(n):",opts:["Asset","Liability","Revenue","Equity"],ans:1,exp:"Unlike traditional accounting where inventory is an asset, lean accounting treats inventory as a liability because holding it requires labor, storage, and other expenses."},
+
+{q:"Obtaining a credit score, contacting references, and calculating financial ratios are all ways to:",opts:["Determine whether a customer is worthy of purchasing on trade credit","Determine whether an investor is capable of financing a startup","Help a financial manager decide whether to open a new location","Help a financial manager decide whether to take a company public"],ans:0,exp:"These methods assess the creditworthiness of a business customer before offering trade credit."},
+
+{q:"Liquidity ratios are most often used to determine whether a company:",opts:["Has controlled its expenses and is in a position to generate a profit","Has the resources to pay its short-term debts","Is likely to be successful in the long term","Is going to be a good investment"],ans:1,exp:"Liquidity ratios measure a company's ability to turn short-term assets into enough cash to cover short-term liabilities."},
+
+{q:"A company uses social media to improve its response time to customer complaints. Doing so helps the company directly:",opts:["Achieve stability","Develop new goods and services","Improve customer satisfaction","Improve profitability"],ans:2,exp:"Faster response to customer complaints directly improves customer satisfaction."},
+
+{q:"Mira is analyzing a financial statement and uses Benford's Law. What can this help her do?",opts:["Estimate business viability","Find opportunities for profit","Identify personnel issues","Detect the possibility of fraud"],ans:3,exp:"Benford's Law helps identify deviations from expected digit distribution patterns in data, which can indicate fraudulently manufactured numbers."},
+
+{q:"Which of the following statements about data analytics is true?",opts:["Descriptive analytics provide forecasts of the future","Descriptive analytics recommend specific courses of action","Prescriptive analytics recommend specific courses of action","Predictive analytics provide descriptions of the past"],ans:2,exp:"Prescriptive analytics recommend specific courses of action. Descriptive analytics describe the past. Predictive analytics forecast possible futures."},
+
+{q:"Which data mining method, often used in market segmentation, involves placing observable data into naturally occurring groups?",opts:["Forecasting","Prediction","Market basket analysis","Cluster analysis"],ans:3,exp:"Cluster analysis groups data points into naturally occurring clusters. When used with consumers, it creates market segments for targeted marketing."},
+
+{q:"Which type of business records includes information on deductions, withholdings, and employee pay?",opts:["Tax records","Asset records","Customer records","Legal records"],ans:0,exp:"Tax records include employee pay, deductions, and withholdings. Asset records track depreciation. Customer records include contact info. Legal records include contracts."},
+
+{q:"Regulations are a factor relating to which category of an environmental scan?",opts:["Demographics","Competition","Technology","Government"],ans:3,exp:"Government regulations affect organizations from the outside. Regulations are a government factor in an environmental scan."},
+
+{q:"Which operations activity involves ensuring adequate supply without running out or holding too much?",opts:["Quality control","Inventory control","Scheduling","Logistics"],ans:1,exp:"Inventory control tracks items and balances supply to avoid stockout costs while minimizing holding costs."},
+
+{q:"If Saeed is concerned that a data breach altered the completeness of his information, he is concerned about the __________ of the data.",opts:["Availability","Confidentiality","Integrity","Privacy"],ans:2,exp:"Data integrity involves the wholeness or completeness of data. A breach of integrity is often called data corruption."},
+
+{q:"A company in which each department performs separate functions with its own budget and staff has an organizational structure based on __________ interdependence.",opts:["Reciprocal","Sequential","Pooled","Mutual"],ans:2,exp:"Pooled interdependence is the lowest form where departments operate with little to no interaction and are largely independent."},
+
+{q:"Which example illustrates the importance of monitoring a project's scope?",opts:["Mateo asked staff how they were coping with their workloads","Zander is making sure he doesn't spend too much on supplies","Erin spent an hour selecting fonts when she should have been practicing her speech","Bethany wants to know if her team won't meet deadlines"],ans:2,exp:"Erin is spending time on a non-essential task (fonts) instead of her actual work (practicing). Monitoring scope prevents this kind of distraction."},
+
+{q:"A company's full-time employees work overtime until a project is complete. As a result, overall wages go from a __________ cost to a __________ cost.",opts:["Semi-variable; variable","Variable; fixed","Fixed; semi-variable","Semi-fixed; semi-variable"],ans:2,exp:"A set salary is a fixed cost. When overtime is added (a variable amount), the total wages become a semi-variable (fixed + variable) cost."},
+
+{q:"Who is responsible for making sure employees maintain a good work-life balance?",opts:["Coworkers","Employers","Employees","Customers"],ans:2,exp:"Employees are ultimately responsible for maintaining their own work-life balance through setting boundaries and taking necessary breaks."},
+
+{q:"A business has added automation to its assembly line process. This is most likely an example of:",opts:["Invention","Innovation","Creativity","Problem-solving"],ans:1,exp:"Innovation involves developing something new or improving something existing. Adding automation improves the efficiency of an existing assembly line."},
+
+{q:"Jamel ensures that his company's business initiatives and computer/IT processes work smoothly together. What area is Jamel working in?",opts:["Accounting","Business information management","Operations management","Securities and investments"],ans:1,exp:"Business information management professionals provide a bridge between business processes and IT to align business and technology goals."},
+
+{q:"A worker who records, classifies, summarizes, analyzes, and communicates a business's financial information is a(n):",opts:["Compliance analyst","Bank manager","Accountant","Insurance agent"],ans:2,exp:"Accountants record, classify, summarize, analyze, and communicate a business's financial information for decision-making."},
+
+{q:"Which career is likely to involve finding money for a company and then making sure it is managed correctly?",opts:["Insurance agent","Mutual fund manager","Financial analyst","Financial accountant"],ans:2,exp:"Financial analysts in corporate finance focus on finding money for a company and managing it correctly through budgeting, planning, and investment decisions."},
+
+{q:"Casey's Tree Removal Services adheres strictly to its rules, practices, and processes, enjoying positive relationships with stakeholders. This demonstrates the benefits of:",opts:["Ethics training in the workplace","Good corporate governance","Public relations initiatives","Setting SMART goals"],ans:1,exp:"Good corporate governance—the combined rules, practices, and processes—leads to fewer misconduct incidents and positive stakeholder relationships."},
+
+{q:"Employee involvement in company decisions often leads to greater employee:",opts:["Sales","Burnout","Satisfaction","Relocation"],ans:2,exp:"When employees see their ideas are heard and valued, it leads to increased job satisfaction and investment in the company."},
+
+{q:"In a well-governed organization, what typically helps employees understand their roles and encourages positive public impressions?",opts:["Transparency","Efficiency","Flexibility","Anonymity"],ans:0,exp:"Transparency—open and truthful communication about company goals, values, and strategies—helps employees understand their roles and builds public trust."},
+
+{q:"It is important that businesses stay on top of their governance reports to ensure compliance because __________ can change frequently.",opts:["Regulations","Personnel","The economy","Technology"],ans:0,exp:"Governance reports document compliance with regulations. When regulations change, businesses must document their response."},
+
+{q:"Who typically has the greatest influence on a company's corporate governance?",opts:["Chief financial officer","Shareholders","Board of directors","HR director"],ans:2,exp:"The board of directors is the primary influence on corporate governance, making important decisions selected by shareholders."},
+
+{q:"Bailey has $50 to spend on jeans or concert tickets but not both. This is an example of:",opts:["Governmental control","Competition in the marketplace","Limits to economic freedom","Private property"],ans:2,exp:"People in a private enterprise system are limited by their own resources and choices. Bailey's limited funds restrict her options."},
+
+{q:"Which is a primary reason for a financial advisor to join a professional organization?",opts:["To have more time for work responsibilities","To reduce the organization's membership dues","To obtain professional development","To increase his/her work responsibilities"],ans:2,exp:"Professional organizations provide support, networking, and professional development events to help members grow their skills and knowledge."},
+
+{q:"Maria and Laura, both accountants, exchanged contact information at a conference and promised to keep in touch about professional opportunities. What skill did they demonstrate?",opts:["Problem solving","Networking","Advertising","Co-branding"],ans:1,exp:"Networking involves exchanging information with others for professional development or advancement."},
+
+{q:"Which of the following typically addresses conflicts of interest, harassment, discrimination, and confidentiality?",opts:["Code of conduct","Annual report","Operating statement","Mission statement"],ans:0,exp:"A code of conduct is a set of rules and standards governing expected practices, including conflicts of interest, harassment, discrimination, and confidentiality."},
+
+{q:"Which is a way that organizations can encourage transparency and reduce risk?",opts:["Offer rewards based on job performance","Give employees a way to voice concerns","Carefully monitor employees' resource use","Guard against digital security threats"],ans:1,exp:"Giving employees a safe way to report ethical issues without fear of consequences is a key aspect of transparency that reduces risk."},
+
+{q:"Johnny notices a smell traced to remodeling that poses no health risk. Which risk must he consider when deciding whether to fix the issue?",opts:["Employee dissatisfaction","Company bankruptcy","Employee conflicts of interest","Company insurance"],ans:0,exp:"Even if the odor isn't harmful, managers have an ethical obligation to maintain a comfortable workplace. Dissatisfied employees may leave or harm company reputation."},
+
+{q:"Which is a potential negative effect that technology has had on risk management?",opts:["There is too much information for any risk management system to process","The newest software processes information more slowly than risk managers could do unassisted","Cloud-based storage systems make confidential information vulnerable to a privacy breach","AI-based systems are less adaptable than traditional risk management technologies"],ans:2,exp:"Cloud-based storage can make confidential information vulnerable to privacy breaches, even with regular security updates."},
+
+{q:"A company that wishes to lower its risk management costs might start its own __________ insurance company.",opts:["Medical malpractice","Professional liability","Captive","Compulsory"],ans:2,exp:"A captive insurance company is wholly owned by a parent company and is a form of corporate self-insurance to lower risk management costs."},
+
+{q:"What risk control technique seeks to contain the effect of a catastrophic event to a particular geographic location?",opts:["Avoidance","Separation","Loss prevention","Loss reduction"],ans:1,exp:"Separation spreads important assets across multiple locations so a catastrophic event at one location won't affect all others."},
+
+{q:"Antonia identifies potential dangers for her bakery, creates response plans, and plans to distribute them to investors. Antonia is engaging in:",opts:["Enterprise risk management","Business objective planning","Organizational goal setting","Preliminary quality management"],ans:0,exp:"Enterprise risk management involves identifying, assessing, and preparing for potential dangers and sharing the plan with stakeholders."},
+
+{q:"Which of the following types of risk is generally uninsurable?",opts:["Customer injury","Property damage","Employee health","Business failure"],ans:3,exp:"Business failure is an uninsurable risk. Customer injury, property damage, and employee health are all insurable risks."},
+
+// Test 1229
+
+{q:"A financial institution fails to comply with an important government regulation. The financial institution will most likely:",opts:["Get a better reputation","Pay a fine","Gain new business","Avoid an audit"],ans:1,exp:"Financial institutions often pay fines for noncompliance. Noncompliance can also damage reputation and they can still be audited."},
+
+{q:"Incorporating technology into compliance is a way for organizations to:",opts:["Reduce costs","Improve customer experience","Increase staff","Avoid the effects of regulation"],ans:0,exp:"Compliance technology allows organizations to reduce costs by being more efficient, saving time, and replacing expensive labor costs."},
+
+{q:"What type of debtor-creditor relationship involves the acquisition and use of credit cards?",opts:["Customary","Unintentional","Voluntary","Implied"],ans:2,exp:"Obtaining a credit card is entering a voluntary debtor-creditor relationship—both parties enter willingly and understand the risks."},
+
+{q:"Environmental law attempts to protect:",opts:["Corporations from the environment","People from the environment","The environment from damaging actions","Corporations from the government"],ans:2,exp:"Environmental law protects the air, water, wilderness, and other aspects of the environment from damaging actions by companies and the public."},
+
+{q:"A man from Alice's health club and church tries to get her to invest, mentioning the minister and gym manager already invested with him. He is attempting to commit __________ fraud.",opts:["Group affinity","Natural resource investing","Private placement offering","Life settlement"],ans:0,exp:"Group affinity fraud uses the scammer's membership in the same group as the victim to falsely establish trust."},
+
+{q:"Which of the following statements best describes the taxation of Roth IRAs?",opts:["Contributions and withdrawals are tax deductible","Contributions are tax deductible, but withdrawals are taxed","Contributions and withdrawals are both taxed","Contributions are taxed, but withdrawals during retirement are not"],ans:3,exp:"Roth IRA contributions are taxed, but earnings and withdrawals during retirement are tax-free."},
+
+{q:"Paula asks 'What do I want to get out of this article?' and 'What are the main points?' whenever she reads research articles. Paula is using __________ techniques.",opts:["Professional editing","Prospecting","Active reading","Summary close"],ans:2,exp:"Active reading techniques include determining what information you need beforehand and summarizing main points to better comprehend the material."},
+
+{q:"Ethan knows that if he wants his speech to be effective, he needs a single, complete statement of his main idea, also known as a:",opts:["Transition","Conclusion","Visual aid","Thesis"],ans:3,exp:"A thesis is a single, complete statement of the main idea that relates the topic to the audience and helps them see its impact."},
+
+{q:"When giving a presentation, you might use graphic aids to:",opts:["Enhance your presentation","Eliminate the need to speak","Distract your audience","Make the presentation longer"],ans:0,exp:"Graphic aids enhance presentations by adding visual interest, communicating information better, and making it easier to remember."},
+
+{q:"What component is important to include in all types of inquiry letters?",opts:["Contact information","Project specifications","Personal qualifications","Attention-getting title"],ans:0,exp:"All inquiry letters should include contact information so the recipient knows where to send the response."},
+
+{q:"When writing an executive summary, be sure that you:",opts:["Include every point from the full report","Use as much business jargon as possible","Make the summary at least 1/10th as long as the full report","Target people who don't have time to read the full report"],ans:3,exp:"Executive summaries are written for people without time to read the full report. They should be concise, jargon-free, and no more than 1/10th the length."},
+
+{q:"In corporate governance, oversight of management, segregation of control, and policy development are all examples of:",opts:["External control mechanisms","Internal control mechanisms","Tasks of the board of directors","Transparency in management"],ans:1,exp:"Internal control mechanisms monitor organizational progress and make corrections. External controls are set by outside parties like governments."},
+
+{q:"To participate effectively in a staff meeting, you should:",opts:["Answer emails during slow points to not waste company time","Bring up any personal concerns so they can be discussed","Read important documents and do research ahead of time","Share your opinion on each topic so your manager knows you're paying attention"],ans:2,exp:"Preparation is the most important way to participate effectively. Personal concerns, emails, and sharing opinions on everything are all inappropriate."},
+
+{q:"Positive customer relations can boost productivity by:",opts:["Attracting new customers","Creating new manufacturing processes","Avoiding wasted time and resources","Cutting down on equipment costs"],ans:2,exp:"When a business provides a positive experience the first time, it avoids correcting mistakes and solving problems, reducing wasted time and resources."},
+
+{q:"Tom admits he doesn't know much about Argentina's culture before meeting a wealthy client from there. What is the most appropriate advice?",opts:["Require the client to hire an interpreter","Take an online course to learn French","Learn about Argentina's culture and adapt his communication style","Tell him not to worry about language barriers"],ans:2,exp:"Learning about a client's culture and adapting communication style helps build positive business relationships and avoids offensive actions."},
+
+{q:"Which is typically an effective method to build trusting relationships with financial clients?",opts:["Contacting clients only when problems arise","Using precise technical language when explaining products","Asking others to follow up after sales transactions","Explaining the benefits and drawbacks of different financial products"],ans:3,exp:"Providing complete product information—including drawbacks—shows openness and helps clients make educated decisions, building trust."},
+
+{q:"A stockbroker uses CRM technology to learn about his typical customer's purchasing pattern. He is using CRM technology to analyze the typical customer:",opts:["Duration","Trajectory","Vintage","Touchpoint"],ans:1,exp:"CRM technology is often used to measure and analyze a customer's trajectory—a pattern of purchases over time."},
+
+{q:"Jacob will not sell his oak desk for anything less than $235. This is an example of the ___________ price.",opts:["Equilibrium","Demand","Supply","Market"],ans:2,exp:"The supply price is the minimum price that producers are willing to receive for a product. Jacob won't sell below $235—his supply price."},
+
+{q:"What type of divisional structure is most appropriate for a company selling lumber to home builders, home-improvement retailers, display-case manufacturers, and furniture producers?",opts:["Unilateral","Customer type","Geographic region","Process"],ans:1,exp:"A customer-type division is beneficial when a company serves very different types of customers who require different expertise and approaches."},
+
+{q:"When she opens her new business, what type of risk is Lauren taking?",opts:["Pure","Speculative","Temporary","Safety"],ans:1,exp:"Speculative risk involves the possibility of gain, no change, or loss. A new business may profit, break even, or go bankrupt."},
+
+{q:"Which example best illustrates the law of diminishing returns?",opts:["Manufacturing costs increased, resulting in lower profits","A declining economy caused a company to reduce production","Falling interest rates led to an increase in construction","A factory added employees but experienced higher costs due to reduced production output per employee"],ans:3,exp:"When one input (employees) increases while others remain constant, output per employee eventually declines—the law of diminishing returns."},
+
+{q:"Which of the following is a reason that businesses monitor inflation?",opts:["To set inflation-targeting goals","To avoid deflation","To negotiate labor contracts","To report to investors"],ans:2,exp:"Monitoring inflation helps managers calculate the cost of living for future periods, which is useful when negotiating labor contracts."},
+
+{q:"Which of the following would help keep the economy from growing too quickly when producers can't keep up with demand?",opts:["Reducing taxes","Reducing supply","Reducing government purchases","Reducing the prime interest rate"],ans:2,exp:"To fight inflation, the government can restrict money flow by raising taxes, raising interest rates, or reducing government purchases."},
+
+{q:"Which area would be best able to participate in trade with other countries?",opts:["A country that is landlocked","A country that is mountainous","A country with a long coastline","A country that has no rivers"],ans:2,exp:"A long coastline provides access to ports, making international shipments easier and more convenient for trade."},
+
+{q:"Patricia hears that her new coworker is quite a bit older and worries she'll be out of touch with technology. What action should Patricia take?",opts:["Avoid the new coworker and take over her duties","Talk to her boss about hiring someone else","Try to teach the new coworker how to use technology","Acknowledge that her beliefs are based on stereotypes"],ans:3,exp:"Patricia is believing a stereotype. She must acknowledge this before she can change her assumptions about the new coworker."},
+
+{q:"We know we are being treated fairly when we:",opts:["Get our way and receive the outcomes we want","Are being treated the way we deserve to be treated","Feel happy and satisfied with others' decisions","Are being treated better than others"],ans:1,exp:"Fairness means being treated the way we deserve. It doesn't always mean getting our way or feeling happy with the outcome."},
+
+{q:"Jack said to his staff: 'I've decided we should proceed. If successful, it benefits the company. If it fails, I'll accept the consequences.' What is Jack doing?",opts:["Indicating he doesn't think he's made a good decision","Accepting responsibility for his decision","Asking his staff to share the blame","Requesting that his staff support his decision"],ans:1,exp:"By accepting the risks associated with his decision, Jack is taking responsibility for the future outcome."},
+
+{q:"An individual who takes action when s/he is unsure of the outcome is able to:",opts:["Show empathy","Demonstrate sincerity","Tolerate ambiguity","Resolve conflicts"],ans:2,exp:"Tolerance for ambiguity means willingness to take action despite incomplete information or uncertain outcomes."},
+
+{q:"Customers are complaining about your impatience. Which of the following will help you be more patient toward customers?",opts:["Self-denial","Self-control","Initiative","Maladjustment"],ans:1,exp:"Self-control is the ability to manage your own thoughts, feelings, and actions—helping you control irritation and be more patient."},
+
+{q:"As a new employee, you receive constructive criticism about your job performance. This criticism is designed to:",opts:["Hurt and discredit you","Show your lack of ability","Improve your ability to do the job","Demonstrate the supervisor's superior job knowledge"],ans:2,exp:"Constructive criticism points out mistakes for the purpose of helping someone improve their performance."},
+
+{q:"While at work, Gabby asks Charlotte a very personal question that makes her uncomfortable. Gabby is being disrespectful of Charlotte's:",opts:["Decision","Opinion","Privacy","Culture"],ans:2,exp:"Asking personal questions is inconsiderate and unprofessional. Charlotte's discomfort reflects a violation of her privacy."},
+
+{q:"When an event doesn't go the way it was planned, an adaptable person will:",opts:["Complain about it to others","Adjust to the new situation","Stop participating","Convince others to do it his/her way"],ans:1,exp:"Adaptable people are flexible and adjust to new situations rather than complaining, stopping, or insisting on their original way."},
+
+{q:"Penny finds her daily work tasks less mundane now that she understands how they contribute to the team's shared vision. Which benefit of shared vision helped Penny?",opts:["It stimulates creativity","It improves communication","It acts as a guide for decision-making","It provides focus for team members' energy"],ans:3,exp:"Shared vision helps team members focus their energy from day to day while performing their work tasks."},
+
+{q:"KRM Corporation safeguards against physical and business hazards and annually reevaluates risks and response plans. KRM Corporation is practicing:",opts:["Security assessment training","Cost-benefit analysis","Enterprise risk management","Hazardous circumstance planning"],ans:2,exp:"Enterprise risk management is a comprehensive strategy that involves planning for both physical and business risks with regular reassessment."},
+
+{q:"Which of the following is a benefit of being exposed to conflicting viewpoints?",opts:["Improved communication skills","Decreased responsibility at work","Increased popularity in social circles","Ability to win arguments easily"],ans:0,exp:"Respecting and appreciating different viewpoints enables constructive dialogue with people of all backgrounds, improving communication skills."},
+
+{q:"Which statement regarding ethical behavior in entrepreneurship is true?",opts:["Ethical entrepreneurs are less likely to maintain positive relationships with suppliers","Ethical behavior by an entrepreneur has little impact on future earnings","Making ethical decisions in entrepreneurship is easy and straightforward","Many customers are more willing to support companies that act ethically"],ans:3,exp:"Many customers and suppliers are more willing to work with ethical entrepreneurs, increasing sales and positive relationships."},
+
+{q:"What source of credit offers its members small loans, installment credit, and low interest rates?",opts:["Commercial banks","Sales finance companies","Credit unions","Savings and loan associations"],ans:2,exp:"Credit unions are financial cooperatives offering savings and credit services including small loans, installment credit, and low interest rates to members."},
+
+{q:"Which of the following increases your personal net worth?",opts:["Owning a home","Renting an apartment","Using a credit card","Leasing a car"],ans:0,exp:"Net worth is everything you own minus everything you owe. Owning a home is an asset. Renting, credit cards, and leasing a car don't increase net worth."},
+
+{q:"The line on a check that reads 'Pay to the order of' is where you write:",opts:["Your signature","The payment amount in numeric form","The payment amount in word form","The recipient's name"],ans:3,exp:"'Pay to the order of' is where you write the name of the person or organization receiving payment."},
+
+{q:"Which of the following most likely led to a greater emphasis on governance structures in recent years?",opts:["Stock market crash","Competitor saturation","Accounting fraud","New technology in the industry"],ans:2,exp:"Accounting fraud is an internal factor that would most likely prompt a greater emphasis on governance structures to prevent future misconduct."},
+
+{q:"Each month, Maggie checks her bank statement against her own record of deposits and withdrawals. Maggie is __________ her bank statement.",opts:["Disputing","Challenging","Reconciling","Creating"],ans:2,exp:"Reconciling means checking your own records against the bank statement to ensure no mistakes have been made."},
+
+{q:"Which of the following are examples of deposit-taking financial institutions?",opts:["Savings and loan associations, mutual savings banks, and insurance firms","Commercial banks, corporations, and mutual savings banks","Credit unions, savings and loan associations, and commercial banks","Commercial banks, credit unions, and brokerages"],ans:2,exp:"Credit unions, savings and loan associations, and commercial banks are deposit-taking institutions. Brokerages and insurance firms are not."},
+
+{q:"What type of financial market structure involves trading unlisted stock via a dealer network?",opts:["Under-the-table","Auction","Debt","Over-the-counter"],ans:3,exp:"Over-the-counter markets involve trading securities outside formal exchanges through a dealer network. These typically involve smaller companies."},
+
+{q:"Which accurately describes how consolidated financial statements represent a parent company and its subsidiaries?",opts:["Separate allocations for the parent and each subsidiary are listed","Transactions between the parent and subsidiaries are included","All assets, liabilities, revenue, and expenses are combined for the parent and its subsidiaries","All components are combined except individual profits and losses"],ans:2,exp:"Consolidated statements combine all financial information of the parent and subsidiaries as if they are one economic unit. Intercompany transactions are eliminated."},
+
+{q:"Why is the performance of the stock market used as a leading indicator of the business cycle?",opts:["Investors tend to sell stocks during an economic contraction and buy during recovery","Investors tend to buy during an economic contraction and sell during recovery","Stock market performance accurately represents the financial health of the economy","Investors use the stock market as a safe way to avoid inflation for the short term"],ans:0,exp:"Stock market is a leading indicator because investors exit stocks during contraction and buy during recovery, affecting overall market movements."},
+
+{q:"Which securities are commonly used to help reduce the impact of significant fluctuations in exchange rates and commodities?",opts:["Derivatives","Stocks","Bonds","Real estate"],ans:0,exp:"Derivatives (options, futures, swaps) derive value from other instruments and are often used globally to hedge against currency and commodity fluctuations."},
+
+{q:"Which website is most likely to contain accurate, trustworthy securities information?",opts:["StandardLine","Wikipedia","Morningstar","Facebook Finance"],ans:2,exp:"Morningstar is an independent company providing up-to-date, reliable information and analyses of stocks, bonds, and mutual funds."},
+
+{q:"If the dividend per share on a securities table is blank, it indicates that the company's stock:",opts:["Had zero trades in the last 24 hours","Has a negative dividend yield","Has a net change value of zero","Does not currently pay dividends"],ans:3,exp:"A blank dividend per share column indicates the company does not currently pay out dividends to shareholders."},
+
+{q:"Ethical accounting professionals avoid conflicts of interest by:",opts:["Authorizing changes","Exhibiting biased attitudes","Encouraging collaboration","Behaving independently"],ans:3,exp:"Accountants must be objective and honest, not influenced by bias or outside opinion. Acting independently avoids conflicts of interest."},
+
+{q:"Why would a bank examine a business's balance sheet?",opts:["To meet its oversight responsibilities of the business community","To determine whether to declare the company bankrupt","To determine whether the company qualifies for additional credit","To recognize its most profitable customers"],ans:2,exp:"By examining the balance sheet, banks determine what a business owns and owes to assess whether it qualifies for additional credit."},
+
+{q:"When preparing a statement of changes in owner's equity, which is specifically represented on the statement?",opts:["Property taxes paid by the owner","New investments by the owner","Depreciation of company assets","Lost revenue due to discharged debt"],ans:1,exp:"New investments or withdrawals by the owner are specifically listed on the statement. Property taxes, depreciation, and lost revenue factor into net income/loss."},
+
+{q:"A new employee left JRB Manufacturing two weeks after completing training. The training expense is a(n) __________ for the company.",opts:["Sunk cost","External cost","Current asset","Capital liability"],ans:0,exp:"Sunk costs are incurred and cannot be recovered. The training money cannot be recouped since the employee left."},
+
+{q:"Alex analyzes the costs and benefits of manufacturing additional products to determine if adding a new production line is financially wise. This type of analysis is known as:",opts:["Marginal analysis","SWOT analysis","A product road map","A process flow diagram"],ans:0,exp:"Marginal analysis examines the additional benefits and costs of an activity to help companies determine the best course of action."},
+
+{q:"A managerial accountant can help a company market its products by:",opts:["Developing a target market analysis","Determining whether to make or buy a component","Examining the relevant costs of advertising options","Creating a budget for hiring increases"],ans:2,exp:"Managerial accountants use relevant cost analysis to help marketers decide between advertising options by comparing their costs."},
+
+{q:"Why is it important to determine the root cause of variances?",opts:["To increase sales","To figure out where to allocate costs","To make the appropriate adjustments","To weigh costs vs. benefits"],ans:2,exp:"Identifying the root cause of a variance is necessary to make the right adjustments. Without knowing the true cause, corrections will be ineffective."},
+
+{q:"Budgets are important to the management process because they:",opts:["Help determine roles and responsibilities","Shift focus from future events to daily issues","Ensure organizational goals come before personal goals","Remove the possibility of financial constraints"],ans:0,exp:"Budgets help determine employees' responsibilities and measure performance so that resources are used wisely."},
+
+{q:"A company buys a water cooler and divides the cost between departments that use it. This is known as cost:",opts:["Combination","Divination","Allocation","Activation"],ans:2,exp:"Cost allocation divides a cost between several cost objects (departments). The water cooler cost is allocated to the departments that use it."},
+
+{q:"Julie's grandparents offered a $1,000 gift at either the beginning or end of college. Why should she take it at the beginning?",opts:["She will pay fewer taxes before she begins college","Inflation will increase the value over time","She can start earning interest sooner","She shouldn't; she should wait until after college"],ans:2,exp:"Taking money earlier allows it to earn interest sooner. Inflation decreases value over time, not increases. Taxes depend on other factors."},
+
+{q:"Which of the following statements regarding the financial-information management function is true?",opts:["Data in a financial-information management system are typically at least four-to-six months old","The financial-information management function is an electronic, web-based activity","The financial-information management function's responsibilities have declined in recent years","A financial-information management system can be used to support operations management decisions"],ans:3,exp:"Operations managers can use financial-information management systems to determine operating efficiency, manage inventory, or evaluate suppliers."},
+
+{q:"To protect the integrity of archived financial information, businesses might consider using different types of:",opts:["Storage strategies","Service procedures","Monetary exchanges","Production methods"],ans:0,exp:"Businesses must consider how to archive historic financial information, often using magnetic or optical storage, keeping up with evolving technology."},
+
+{q:"What is a benefit to businesses of using a central data repository for financial information?",opts:["Reliance on historical data","Quick response to complex queries","Focus on low volumes of data","Reliance on a single software application"],ans:1,exp:"A central data repository allows quick response to complex queries, along with accessibility to consistent data and economies of scale."},
+
+{q:"Which budgeting software tool could Tara use to assess the potential impact of a loan vs. a line of credit on her business?",opts:["Decision trees","Debt modeling","Environmental scanning","Zero-based modeling"],ans:1,exp:"Debt modeling tools allow users to input loan or credit terms to assess the potential impact of different funding options."},
+
+{q:"To determine which bills are due in the next 10 days and their amounts, a company needs to use a financial analysis application to evaluate its:",opts:["Accounts payable","Dividend payments","Sales revenue","Credit rating"],ans:0,exp:"Accounts payable are monies owed by the business. Accounts-payable applications help organize bills and allocate funds to pay them when due."},
+
+{q:"What is the relationship between financial information and lean-focused organizations?",opts:["Studying lean organizations provides financial information","Lean organizations have less need for financial information","Financial information provides ways to reduce wasted resources","Financial information helps organizations reduce errors"],ans:2,exp:"Financial information highlights areas where spending is excessive and can be reduced, supporting lean organizations' goal of minimizing waste."},
+
+{q:"Financial information that a credit card issuer analyzes when reviewing customers' applications includes:",opts:["Payment history and current level of debt","Income and preferred standard of living","Employment status and financial goals","Loan balances and consumption rates"],ans:0,exp:"Credit card issuers review payment history and current debt level to assess credit risk. Financial goals and preferred lifestyle are not primary factors."},
+
+{q:"Which of the following actions should Julia take to orient the new employee?",opts:["Allow the employee to get straight to work and run through rules later","Focus on job duties and procedures, not getting to know coworkers","Assign a mentor or 'buddy' to help the new employee learn the ropes","Encourage the employee to talk about religious and political views"],ans:2,exp:"An experienced mentor can answer new employee questions and provide a built-in personal connection at the company."},
+
+{q:"Becoming more socially minded in marketing can bring a business:",opts:["More products","Lower costs","Higher profits","A competitive advantage"],ans:3,exp:"Since many consumers are interested in socially responsible products, social marketing gives a business a competitive advantage."},
+
+{q:"A business that gives customers detailed privacy policies explaining how it protects their information is addressing a legal issue associated with:",opts:["The company's public relations","Federal government security","Customers' constitutional rights","Information management"],ans:3,exp:"Governments regulate businesses to protect customer privacy. Providing privacy policies addresses legal issues associated with information management."},
+
+{q:"Hardware, software, and databases are all components of ___________ systems.",opts:["Information","Ethics","Email","Word-of-mouth"],ans:0,exp:"An information system is a set of components (hardware, software, databases, human resources) that collects, processes, and interprets information."},
+
+{q:"Employees working on a project from distant locations can transfer information more efficiently by:",opts:["Sharing documents with file sharing software","Composing and sending detailed email messages","Mailing physical documents to one another","Scheduling meetings to work together"],ans:0,exp:"File sharing enables employees to easily and quickly collaborate and share information from different locations."},
+
+{q:"What is the first step in designing a multi-table query?",opts:["Set the correct join direction","Determine the criteria","Locate the correct tables","Pinpoint exactly what you want to know"],ans:3,exp:"The first step is determining exactly what question you want the database to answer. Without this, no other steps can be successful."},
+
+{q:"A company analyzing data from past holiday sales to make decisions about product release dates is using __________ analytics.",opts:["Big data","Predictive","Prescriptive","Descriptive"],ans:1,exp:"Predictive analytics uses historical data to predict future behavior. Analyzing past holiday sales to forecast release dates is predictive."},
+
+{q:"Businesses that use computer software to track billing information and sales transactions create records about their customers':",opts:["Payment history","Financial plans","Income level","Personal preferences"],ans:0,exp:"Billing information and sales transactions provide a record of payment dates, amounts, and methods—the customer's payment history."},
+
+{q:"Which example illustrates how environmental factors are dynamic?",opts:["The government provides subsidies to agricultural businesses","Demographics influence social and cultural attitudes","The economy impacts government policies","High interest rates will eventually get lower"],ans:3,exp:"Interest rates' fluctuation over time illustrates how environmental factors are dynamic, or always changing."},
+
+{q:"Ten customers reviewed a product: five gave five stars, two gave four, two gave three, one gave one. What is the mode?",opts:["5","4.5","4","3"],ans:0,exp:"Mode is the most frequently occurring value. Five stars was given by 5 customers—more than any other rating. Mode = 5."},
+
+{q:"Which may happen if a business cuts costs?",opts:["It may pay fewer taxes","It may improve product quality","It may boost its community involvement","It may hire more employees"],ans:0,exp:"If finding tax loopholes is part of cost-savings, a business may pay fewer taxes. Cutting costs usually sacrifices quality and community involvement."},
+
+{q:"So that employees are prepared to act if an accident occurs in the workplace, many businesses provide them with __________ training.",opts:["Security","Fitness","First-aid","Fire-response"],ans:2,exp:"First-aid training helps employees stabilize accident victims until professional medical assistance arrives."},
+
+{q:"How can a company protect its company name from being imitated by others?",opts:["Obtain trademark protection","Place it in the public domain","Apply for a patent","Obtain a copyright"],ans:0,exp:"Trademarks protect unique organization names by preventing others from using them. Patents protect inventions; copyrights protect artistic works."},
+
+{q:"Which of the following is a true statement about a project plan?",opts:["It emphasizes flexibility over strategy","It is not necessary for every project","It is a road map","It is 'set in stone'—unchanging"],ans:2,exp:"A project plan is a set of living documents serving as a road map from beginning to end. It should be amended as necessary throughout the project."},
+
+{q:"When you want to select a new vendor for your business, it's best to:",opts:["Continue using a vendor you've used before","Go with a friend's recommendation","Use a formal selection process","Pick the vendor with the best online reviews"],ans:2,exp:"A formal selection process is the most effective way to find the vendor that's the best fit for your business's particular needs."},
+
+{q:"To maintain a quality work culture throughout all levels of an organization, it is important for businesses to:",opts:["Train employees thoroughly","Solve problems with minimal input","Emphasize short-term gains","Focus primarily on financial issues"],ans:0,exp:"Thorough and ongoing training ensures employees can perform jobs correctly and keep up with technological changes."},
+
+{q:"Which of the following is one of a business's biggest expenses?",opts:["Payroll","Insurance","Rent","Utilities"],ans:0,exp:"Payroll—the money a business pays in salaries and wages—is one of its biggest expenses, making it important to get full value from payroll dollars."},
+
+{q:"Which of the following is a common result of supply chain collaboration?",opts:["Customer dissatisfaction","Slower decision-making","Reduced overall costs","Frequent miscommunication"],ans:2,exp:"Supply chain collaboration leads to increased knowledge sharing, which can reduce overall costs and improve communication and decision-making."},
+
+{q:"Shoshanna writes down her goal to become manager by next year, breaks it into steps, visualizes success, and reviews her progress. She is engaging in:",opts:["Objective predicting","Goal setting","Success forecasting","Progress planning"],ans:1,exp:"Goal setting involves choosing a goal, writing it down, breaking it into steps, visualizing it, and reviewing/updating regularly."},
+
+{q:"What do coworkers involved in a dispute need to do before they can find a possible solution?",opts:["Negotiate a settlement","Ignore the situation","Contact an arbitrator","Identify the problem"],ans:3,exp:"Identifying the exact problem is the first step in resolving conflict. Only after identifying the problem can parties work toward a solution."},
+
+{q:"Salaries, commissions, and bonuses obtained from a job are examples of __________ rewards.",opts:["Intrinsic","Extrinsic","Concomitant","Vocational"],ans:1,exp:"Extrinsic rewards are the actual, tangible rewards obtained for performing the job. Intrinsic rewards come from within yourself."},
+
+{q:"Job interviewers often say 'Tell me about yourself.' What is the purpose of this request?",opts:["To test the applicant's communication skills","To test the applicant's honesty and integrity","To find out about the applicant's personal life","To uncover job-related problems the applicant has"],ans:0,exp:"This question evaluates communication skills and allows interviewers to learn more about the applicant than the résumé provides."},
+
+{q:"Beginning securities sales agents, or brokers, are required to:",opts:["Work with a mentor","Pass a licensing exam","Register with the Securities and Exchange Commission","Settle for below-average salaries in exchange for short work weeks"],ans:1,exp:"Beginning securities sales agents are required by the U.S. Department of Labor to pass a licensing exam to sell securities."},
+
+{q:"Which statement regarding corporate governance is true?",opts:["The principles of corporate governance often conflict with sustainability","Small businesses do not need formal corporate governance","Corporate governance keeps any one person from having too much control","The focus of corporate governance is social rather than financial"],ans:2,exp:"Corporate governance prevents any one person from exerting too much control, ensuring fairness and accountability. All sizes of organizations can benefit."},
+
+{q:"One way that organizations can achieve their corporate governance objectives is by:",opts:["Allowing senior managers to serve on the board","Preventing stakeholders from viewing financial information","Encouraging employee participation at board meetings","Releasing an annual report detailing failures and losses"],ans:2,exp:"Employees should be encouraged to participate in board meetings to raise questions or concerns about company actions."},
+
+{q:"When you use an infographic to represent data, your audience:",opts:["Won't remember your key points","Can become easily confused","Will pay more attention","Will mistrust your expertise"],ans:2,exp:"Infographics capture and hold audience attention much better than raw data, making key points more memorable and easier to understand."},
+
+{q:"How can you easily and automatically track your bank account withdrawals and deposits?",opts:["Organize your financial paperwork","Save your receipts and compare them to your bank statement","Use a mobile banking or budgeting app","Make a list of all of your bills and when they are due"],ans:2,exp:"Mobile banking and budgeting apps automatically track all financial transactions by connecting to your bank accounts."},
+
+{q:"Which of the following is a business alliance organization that operates on a local level?",opts:["Seattle Metropolitan Chamber of Commerce","International Federation of Social Workers","Small Business Administration","National Restaurant Association"],ans:0,exp:"The Seattle Metropolitan Chamber of Commerce operates at a local level, uniting businesses and individuals to influence policy and solve local problems."},
+
+{q:"Career growth opportunities, access to insider information, and increased technical knowledge are all benefits of:",opts:["Maintaining a healthy work-life balance","Working overtime every week","Building professional relationships","Avoiding office-wide social events"],ans:2,exp:"Professional relationships in finance can lead to career growth, access to industry information, and increased technical knowledge through networking."},
+
+{q:"Which ethical issue is most likely to cause hazard risks?",opts:["Unsafe working conditions","Conflicts of interest","Misuse of resources","Lack of transparency"],ans:0,exp:"Hazard risks are situations that can cause injury or harm to people, property, or the environment—most likely from unsafe working conditions."},
+
+{q:"A business can protect its computerized financial data from losses associated with fire, flood, and electrical outages by:",opts:["Performing backup procedures on a regular basis","Installing intrusion detection systems","Changing passwords and encryption techniques periodically","Implementing a manual filing system"],ans:0,exp:"Regular backups stored off-site protect against loss from uncontrollable circumstances like fire, floods, or electrical outages."},
+
+{q:"To reduce the risk of future legal problems, a company might require its business partners to sign a formal:",opts:["Invoice","Contract","Premium","Warrant"],ans:1,exp:"A written contract that both parties sign reduces the risk of misunderstanding and provides legal recourse if problems occur."},
+
+{q:"A control that financial institutions have implemented to protect bank accounts when debit cards are used for online transactions is:",opts:["E-invoicing","Malware","PIN debits","Pan-European Public Procurement On-line (PEPPOL)"],ans:2,exp:"PIN debits require customers to provide their PIN in addition to their account number, adding an extra layer of protection for online transactions."},
+
+{q:"Nancy said to Stanley: 'That was a good try. Next time you might want to take the opposite approach.' This is an example of a coach providing:",opts:["Ineffective criticism","Feedback for improvement","A standard response","Continuous reinforcement"],ans:1,exp:"By suggesting an alternative approach, Nancy is providing feedback for improvement—encouraging Stanley and offering a course of action."},
+
+{q:"One reason why event planners take steps to control and limit the possibility of risk is to:",opts:["Avoid liability","Preserve an image","Obtain insurance","Decrease piracy"],ans:0,exp:"Risk management enables event planners to avoid liability—responsibility for injury or loss. When customers accept liability terms on tickets, planners may be protected."},
+
+];
+
+// State
+
+let pileX=[], pileY=[], pileU=[], current=null, answered=false, queue=[], queueSource='';
+
+function initPiles() {
+
+pileX=[]; pileY=[];
+
+pileU=ALL_QUESTIONS.map((_,i)=>i);
+
+buildQueue();
+
+}
+
+function buildQueue() {
+
+if(pileU.length>0){queue=shuffle([...pileU]);queueSource='unseen';}
+
+else if(pileY.length>0){queue=shuffle([...pileY]);queueSource='review';}
+
+else{queue=shuffle([...pileX]);queueSource='mastered';}
+
+}
+
+function shuffle(arr) {
+
+for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+
+return arr;
+
+}
+
+function nextQuestion() {
+
+if(queue.length===0){showRoundComplete();return;}
+
+current=queue.shift();
+
+render();
+
+}
+
+function render() {
+
+const q=ALL_QUESTIONS[current];
+
+document.getElementById('count-x').textContent=pileX.length;
+
+document.getElementById('count-y').textContent=pileY.length;
+
+document.getElementById('count-u').textContent=pileU.length;
+
+document.getElementById('progress-bar').style.width=`${(pileX.length/ALL_QUESTIONS.length)*100}%`;
+
+document.getElementById('meta').textContent=`Question from ${queueSource==='review'?'Review Pile':queueSource==='mastered'?'Mastered Pile':'Unseen Pile'}`;
+
+document.getElementById('question').textContent=q.q;
+
+const opts=document.getElementById('options');
+
+opts.innerHTML='';
+
+q.opts.forEach((o,i)=>{
+
+const btn=document.createElement('button');
+
+btn.className='opt';
+
+btn.textContent=`${['A','B','C','D'][i]}. ${o}`;
+
+btn.onclick=()=>choose(i);
+
+opts.appendChild(btn);
+
+});
+
+document.getElementById('explanation').style.display='none';
+
+document.getElementById('wrong-choice-note').style.display='none';
+
+document.getElementById('next-btn').style.display='none';
+
+answered=false;
+
+}
+
+function choose(i) {
+
+if(answered)return;
+
+answered=true;
+
+const q=ALL_QUESTIONS[current];
+
+const btns=document.querySelectorAll('.opt');
+
+btns.forEach(b=>b.disabled=true);
+
+const correct=q.ans;
+
+btns[correct].classList.add('correct');
+
+const exp=document.getElementById('explanation');
+
+if(i===correct){
+
+pileU=pileU.filter(x=>x!==current);pileY=pileY.filter(x=>x!==current);
+
+if(!pileX.includes(current))pileX.push(current);
+
+exp.className='';exp.style.display='block';
+
+exp.innerHTML=`<strong>✓ Correct → Mastered Pile.</strong> ${q.exp}`;
+
+document.getElementById('wrong-choice-note').style.display='none';
+
+} else {
+
+btns[i].classList.add('wrong');
+
+pileU=pileU.filter(x=>x!==current);pileX=pileX.filter(x=>x!==current);
+
+if(!pileY.includes(current))pileY.push(current);
+
+const wrongNote=document.getElementById('wrong-choice-note');
+
+wrongNote.style.display='block';
+
+wrongNote.innerHTML=`<strong>You chose: ${['A','B','C','D'][i]}. ${q.opts[i]}</strong> — This is incorrect.`;
+
+exp.className='wrong-exp';exp.style.display='block';
+
+exp.innerHTML=`<strong>✗ Incorrect → Review Pile.</strong> Correct answer: <strong>${['A','B','C','D'][correct]}. ${q.opts[correct]}</strong><br><br>${q.exp}`;
+
+}
+
+document.getElementById('count-x').textContent=pileX.length;
+
+document.getElementById('count-y').textContent=pileY.length;
+
+document.getElementById('count-u').textContent=pileU.length;
+
+document.getElementById('progress-bar').style.width=`${(pileX.length/ALL_QUESTIONS.length)*100}%`;
+
+document.getElementById('next-btn').style.display='inline-block';
+
+}
+
+function showRoundComplete() {
+
+document.getElementById('quiz-screen').style.display='none';
+
+const rc=document.getElementById('round-complete');
+
+rc.style.display='block';
+
+if(pileU.length===0&&pileY.length===0){
+
+document.getElementById('round-title').textContent='🎉 All Questions Mastered!';
+
+document.getElementById('round-sub').textContent=`You've mastered all ${ALL_QUESTIONS.length} questions!`;
+
+document.getElementById('continue-btn').textContent='Review All Again →';
+
+} else if(pileU.length===0){
+
+document.getElementById('round-title').textContent='All Unseen Questions Done!';
+
+document.getElementById('round-sub').textContent=`Mastered: ${pileX.length} | Review pile: ${pileY.length} questions to retry.`;
+
+document.getElementById('continue-btn').textContent='Start Review Pile →';
+
+} else {
+
+document.getElementById('round-title').textContent='Review Round Complete!';
+
+document.getElementById('round-sub').textContent=`Mastered: ${pileX.length} | Still in review: ${pileY.length} | Unseen: ${pileU.length}`;
+
+document.getElementById('continue-btn').textContent='Continue →';
+
+}
+
+}
+
+document.getElementById('next-btn').onclick=()=>nextQuestion();
+
+document.getElementById('continue-btn').onclick=()=>{
+
+document.getElementById('round-complete').style.display='none';
+
+document.getElementById('quiz-screen').style.display='block';
+
+if(pileU.length===0&&pileY.length===0){pileX=[];pileU=ALL_QUESTIONS.map((_,i)=>i);}
+
+buildQueue();nextQuestion();
+
+};
+
+initPiles();nextQuestion();
+
+</script>
+
+</body>
+
+</html>
+
