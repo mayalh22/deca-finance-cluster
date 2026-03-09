@@ -516,7 +516,7 @@ function render() {
   const progress = pileX.length / total;
   document.getElementById('progress-bar').style.width = `${progress * 100}%`;
 
-  document.getElementById('meta').textContent = `Pile: ${queueSource === 'review' ? 'Review (Incorrect)' : queueSource === 'mastered' ? 'Mastered' : 'Unseen'}  |  ${pileX.length}/${total} mastered`;
+  document.getElementById('meta').textContent = `Question from ${queueSource === 'review' ? 'Review (Incorrect)' : queueSource === 'mastered' ? 'Mastered' : 'Unseen'}  |  ${pileX.length}/${total} mastered`;
 
   document.getElementById('question').textContent = q.q;
   const opts = document.getElementById('options');
