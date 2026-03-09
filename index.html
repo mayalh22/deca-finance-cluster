@@ -5,34 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DECA Finance Quiz</title>
 <style>
+  :root {
+    --color-green: #009b47;
+    --color-green-dark: #007a38;
+    --color-red: #c0392b;
+    --color-red-dark: #a93226;
+    --color-blue: #152238;
+    --color-grey: #888;
+    --color-grey-light: #e0e0e0;
+    --color-grey-lighter: #f0f0f0;
+    --color-grey-dark: #555;
+    --color-white: #fff;
+    --color-green-bg: #e6f9ef;
+    --color-red-bg: #fff0f0;
+    --color-green-bg-light: #f0fff6;
+    --color-red-bg-light: #fff5f5;
+    --color-grey-border: #ccc;
+    --color-explanation-bg: #f7f7f7;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Roboto', sans-serif; background: #fff; color: #152238; min-height: 100vh; }
+  body { font-family: 'Roboto', sans-serif; background: var(--color-white); color: var(--color-blue); min-height: 100vh; }
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
   #app { max-width: 720px; margin: 0 auto; padding: 40px 24px; }
-  #progress-bar-wrap { background: #e0e0e0; height: 4px; border-radius: 2px; margin-bottom: 32px; }
-  #progress-bar { background: #009b47; height: 4px; border-radius: 2px; transition: width 0.3s; }
-  #meta { font-size: 13px; color: #888; margin-bottom: 20px; font-weight: 500; letter-spacing: 0.5px; }
-  #pile-info { font-size: 13px; color: #555; margin-bottom: 12px; display: flex; gap: 16px; }
+  #progress-bar-wrap { background: var(--color-grey-light); height: 4px; border-radius: 2px; margin-bottom: 32px; }
+  #progress-bar { background: var(--color-green); height: 4px; border-radius: 2px; transition: width 0.3s; }
+  #meta { font-size: 13px; color: var(--color-grey); margin-bottom: 20px; font-weight: 500; letter-spacing: 0.5px; }
+  #pile-info { font-size: 13px; color: var(--color-grey-dark); margin-bottom: 12px; display: flex; gap: 16px; }
   .pile-badge { padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 12px; }
-  .pile-x { background: #e6f9ef; color: #009b47; border: 1px solid #009b47; }
-  .pile-y { background: #fff0f0; color: #c0392b; border: 1px solid #c0392b; }
-  .pile-u { background: #f0f0f0; color: #888; border: 1px solid #ccc; }
-  #question { font-size: 18px; font-weight: 500; line-height: 1.5; margin-bottom: 28px; color: #152238; }
-  .opt { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid #e0e0e0; color: #152238; padding: 14px 18px; margin-bottom: 10px; font-size: 15px; font-family: 'Roboto', sans-serif; cursor: pointer; border-radius: 4px; transition: border-color 0.15s; }
-  .opt:hover:not(:disabled) { border-color: #009b47; }
-  .opt.correct { border-color: #009b47; background: #f0fff6; color: #152238; }
-  .opt.wrong { border-color: #c0392b; background: #fff5f5; color: #152238; }
+  .pile-x { background: var(--color-green-bg); color: var(--color-green); border: 1px solid var(--color-green); }
+  .pile-y { background: var(--color-red-bg); color: var(--color-red); border: 1px solid var(--color-red); }
+  .pile-u { background: var(--color-grey-lighter); color: var(--color-grey); border: 1px solid var(--color-grey-border); }
+  #question { font-size: 18px; font-weight: 500; line-height: 1.5; margin-bottom: 28px; color: var(--color-blue); }
+  .opt { display: block; width: 100%; text-align: left; background: var(--color-white); border: 2px solid var(--color-grey-light); color: var(--color-blue); padding: 14px 18px; margin-bottom: 10px; font-size: 15px; font-family: 'Roboto', sans-serif; cursor: pointer; border-radius: 4px; transition: border-color 0.15s; }
+  .opt:hover:not(:disabled) { border-color: var(--color-green); }
+  .opt.correct { border-color: var(--color-green); background: var(--color-green-bg-light); color: var(--color-blue); }
+  .opt.wrong { border-color: var(--color-red); background: var(--color-red-bg-light); color: var(--color-blue); }
   .opt:disabled { cursor: default; }
-  #explanation { display: none; background: #f7f7f7; border-left: 4px solid #009b47; padding: 16px 18px; margin-top: 20px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
-  #explanation.wrong-exp { border-left-color: #c0392b; }
-  #wrong-choice-note { display: none; background: #fff5f5; border-left: 4px solid #c0392b; padding: 12px 18px; margin-top: 12px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
-  #next-btn { display: none; margin-top: 24px; background: #009b47; color: #fff; border: none; padding: 14px 32px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px; }
-  #next-btn:hover { background: #007a38; }
+  #explanation { display: none; background: var(--color-explanation-bg); border-left: 4px solid var(--color-green); padding: 16px 18px; margin-top: 20px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
+  #explanation.wrong-exp { border-left-color: var(--color-red); }
+  #wrong-choice-note { display: none; background: var(--color-red-bg-light); border-left: 4px solid var(--color-red); padding: 12px 18px; margin-top: 12px; font-size: 14px; line-height: 1.6; color: #333; border-radius: 0 4px 4px 0; }
+  #next-btn { display: none; margin-top: 24px; background: var(--color-green); color: var(--color-white); border: none; padding: 14px 32px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; letter-spacing: 0.5px; }
+  #next-btn:hover { background: var(--color-green-dark); }
   #round-complete { display: none; text-align: center; padding: 60px 0; }
-  #round-complete h2 { font-size: 28px; font-weight: 700; color: #152238; margin-bottom: 8px; }
-  #round-complete p { font-size: 16px; color: #555; margin-bottom: 32px; }
-  #continue-btn { background: #c0392b; color: #fff; border: none; padding: 14px 36px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; }
-  #continue-btn:hover { background: #a93226; }
+  #round-complete h2 { font-size: 28px; font-weight: 700; color: var(--color-blue); margin-bottom: 8px; }
+  #round-complete p { font-size: 16px; color: var(--color-grey-dark); margin-bottom: 32px; }
+  #continue-btn { background: var(--color-red); color: var(--color-white); border: none; padding: 14px 36px; font-size: 15px; font-family: 'Roboto', sans-serif; font-weight: 700; cursor: pointer; border-radius: 4px; }
+  #continue-btn:hover { background: var(--color-red-dark); }
 </style>
 </head>
 <body>
@@ -2181,7 +2199,6 @@ const ALL_QUESTIONS = [
 
 ];
 
-// State
 let pileX = []; // mastered (indices)
 let pileY = []; // review (indices)
 let pileU = []; // unseen (indices)
@@ -2190,11 +2207,46 @@ let answered = false;
 let queue = []; // current working queue
 let queueSource = ''; // 'unseen' or 'review'
 
+const STORAGE_KEY = 'deca-quiz-state-v1';
+
+function saveState() {
+  const state = {
+    pileX,
+    pileY,
+    pileU,
+    current,
+    queue,
+    queueSource
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return false;
+  try {
+    const state = JSON.parse(raw);
+    if (!state || !Array.isArray(state.pileX) || !Array.isArray(state.pileY) || !Array.isArray(state.pileU)) return false;
+    pileX = state.pileX;
+    pileY = state.pileY;
+    pileU = state.pileU;
+    current = state.current;
+    queue = state.queue || [];
+    queueSource = state.queueSource || 'unseen';
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function initPiles() {
-  pileX = [];
-  pileY = [];
-  pileU = ALL_QUESTIONS.map((_, i) => i);
-  buildQueue();
+  if (!loadState()) {
+    pileX = [];
+    pileY = [];
+    pileU = ALL_QUESTIONS.map((_, i) => i);
+    buildQueue();
+    saveState();
+  }
 }
 
 function buildQueue() {
@@ -2210,6 +2262,7 @@ function buildQueue() {
     queue = shuffle([...pileX]);
     queueSource = 'mastered';
   }
+  saveState();
 }
 
 function shuffle(arr) {
@@ -2306,6 +2359,7 @@ function choose(i) {
   document.getElementById('progress-bar').style.width = `${(pileX.length / ALL_QUESTIONS.length) * 100}%`;
 
   document.getElementById('next-btn').style.display = 'inline-block';
+  saveState();
 }
 
 function showRoundComplete() {
@@ -2314,7 +2368,7 @@ function showRoundComplete() {
   rc.style.display = 'block';
 
   if (pileU.length === 0 && pileY.length === 0) {
-    document.getElementById('round-title').textContent = '🎉 All Questions Mastered!';
+    document.getElementById('round-title').textContent = 'All Questions Mastered!';
     document.getElementById('round-sub').textContent = `You've mastered all ${ALL_QUESTIONS.length} questions! Keep reviewing to stay sharp.`;
     document.getElementById('continue-btn').textContent = 'Review All Again →';
   } else if (pileU.length === 0) {
@@ -2326,10 +2380,12 @@ function showRoundComplete() {
     document.getElementById('round-sub').textContent = `Mastered: ${pileX.length} | Still in review: ${pileY.length} | Unseen: ${pileU.length}`;
     document.getElementById('continue-btn').textContent = 'Continue →';
   }
+  saveState();
 }
 
 document.getElementById('next-btn').onclick = () => {
   nextQuestion();
+  saveState();
 };
 
 document.getElementById('continue-btn').onclick = () => {
@@ -2337,12 +2393,12 @@ document.getElementById('continue-btn').onclick = () => {
   document.getElementById('quiz-screen').style.display = 'block';
 
   if (pileU.length === 0 && pileY.length === 0) {
-    // Reset all to unseen for full replay
     pileX = [];
     pileU = ALL_QUESTIONS.map((_, i) => i);
   }
   buildQueue();
   nextQuestion();
+  saveState();
 };
 
 initPiles();
