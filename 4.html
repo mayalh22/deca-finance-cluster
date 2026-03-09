@@ -485,7 +485,7 @@ function render() {
   document.getElementById('count-y').textContent = pileY.length;
   document.getElementById('count-u').textContent = pileU.length;
   document.getElementById('progress-bar').style.width = `${(pileX.length/ALL_QUESTIONS.length)*100}%`;
-  document.getElementById('meta').textContent = `Drawing from: ${queueSource === 'review' ? 'Review Pile' : queueSource === 'mastered' ? 'Mastered Pile' : 'Unseen Pile'}`;
+  document.getElementById('meta').textContent = `Question from ${queueSource === 'review' ? 'Review Pile' : queueSource === 'mastered' ? 'Mastered Pile' : 'Unseen Pile'}`;
   document.getElementById('question').textContent = q.q;
   const opts = document.getElementById('options');
   opts.innerHTML = '';

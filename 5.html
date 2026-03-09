@@ -584,12 +584,12 @@ function showRoundComplete() {
   rc.style.display = 'block';
 
   if (pileU.length === 0 && pileY.length === 0) {
-    document.getElementById('round-title').textContent = '🎉 All Questions Mastered!';
+    document.getElementById('round-title').textContent = 'All Questions Mastered!';
     document.getElementById('round-sub').textContent = `You've mastered all ${ALL_QUESTIONS.length} questions! Keep reviewing to stay sharp.`;
     document.getElementById('continue-btn').textContent = 'Review All Again →';
   } else if (pileU.length === 0) {
     document.getElementById('round-title').textContent = 'All Unseen Questions Done!';
-    document.getElementById('round-sub').textContent = `Mastered: ${pileX.length} | Review pile: ${pileY.length} questions to retry.`;
+    document.getElementById('round-sub').textContent = `Mastered: ${pileX.length} | Question from ${pileY.length} pile questions to retry.`;
     document.getElementById('continue-btn').textContent = 'Start Review Pile →';
   } else {
     document.getElementById('round-title').textContent = 'Review Round Complete!';

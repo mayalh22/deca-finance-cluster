@@ -459,7 +459,7 @@ function showRoundComplete() {
   const rc = document.getElementById('round-complete');
   rc.style.display = 'block';
   if (pileU.length === 0 && pileY.length === 0) {
-    document.getElementById('round-title').textContent = '🏆 All Questions Mastered!';
+    document.getElementById('round-title').textContent = 'All Questions Mastered!';
     document.getElementById('round-sub').textContent = `You've mastered all ${ALL_QUESTIONS.length} questions! Keep reviewing to stay sharp.`;
     document.getElementById('continue-btn').textContent = 'Review All Again →';
   } else if (pileU.length === 0) {
