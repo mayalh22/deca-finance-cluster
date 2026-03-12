@@ -9,3 +9,12 @@
     Sorry! I am currently updating the site so it doesn't make one have to do all 2000 questions. Expect a fixed version by 11 ish.
   </p>
 </body>
+
+<script>
+  const socket = new WebSocket('wss://yourserver.com/reload');
+  socket.onmessage = (event) => {
+    if (event.data === 'reload') {
+      location.reload(true); // forces fresh content
+    }
+  };
+</script>
