@@ -18,3 +18,27 @@
     }
   };
 </script>
+
+<script>
+  let lastVersion = null;
+
+  async function checkIndex() {
+    try {
+      // Fetch the index.html without using the cache
+      const response = await fetch('/index.html', { cache: 'no-cache' });
+      const latestContent = await response.text();
+
+      if (lastVersion && latestContent !== lastVersion) {
+        location.reload(true); // force reload from server
+      }
+
+      lastVersion = latestContent;
+    } catch (err) {
+      console.error('Could not check index.html version:', err);
+    }
+  }
+
+  // Check every 1 second
+  setInterval(checkIndex, 1000);
+  checkIndex(); // check immediately on load
+</script>tiyruldghfjkfr
