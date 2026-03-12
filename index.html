@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DECA Finance Quiz</title>
+</head>
 <body style="background-color: white; font-family: serif; color: black; padding: 20px;">
   <p>
     Sorry! I am currently updating the site so it doesn't make one have to do all 2000 questions. Expect a fixed version by 11 ish.
@@ -11,25 +12,28 @@
 </body>
 
 <script>
+  // ---------- WebSocket push (optional) ----------
   const socket = new WebSocket('wss://yourserver.com/reload');
   socket.onmessage = (event) => {
     if (event.data === 'reload') {
-      location.reload(true); // forces fresh content
+      console.log('Reload triggered via WebSocket');
+      location.reload(true);
     }
   };
 </script>
 
 <script>
+  // ---------- Polling fallback every 1 second ----------
   let lastVersion = null;
 
   async function checkIndex() {
     try {
-      // Fetch the index.html without using the cache
       const response = await fetch('/index.html', { cache: 'no-cache' });
       const latestContent = await response.text();
 
       if (lastVersion && latestContent !== lastVersion) {
-        location.reload(true); // force reload from server
+        console.log('Reload triggered via polling');
+        location.reload(true);
       }
 
       lastVersion = latestContent;
@@ -38,7 +42,6 @@
     }
   }
 
-  // Check every 1 second
-  setInterval(checkIndex, 1000);
+  setInterval(checkIndex, 1000); // check every 1 second
   checkIndex(); // check immediately on load
-</script>tiyruldghfjkfr
+</script>
