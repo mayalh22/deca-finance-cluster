@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz &mdash; DECA Finance</title>
+  <meta name="description" content="Answer DECA Finance questions with spaced repetition. Track mastered, review, and unseen piles." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300924a'/><text x='16' y='22' text-anchor='middle' font-family='Inter,sans-serif' font-size='18' font-weight='700' fill='white'>D</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="site-nav">
+    <div class="container">
+      <div class="site-nav__inner">
+        <a href="index.html" class="site-nav__logo">DECA<span>Finance</span></a>
+        <div class="site-nav__links">
+          <button id="reset-btn" class="btn btn--ghost" style="height:36px;padding:0 16px;font-size:13px;">Reset progress</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main style="padding: var(--sp-8) 0 var(--sp-11);">
+    <div class="container container--sm">
+
+      <div id="quiz-screen">
+        <div class="quiz-header">
+          <div class="quiz-header__top">
+            <div class="pile-row" id="pile-row">
+              <span class="pile-chip pile-chip--mastered">&#10003; Mastered <span id="count-x">0</span></span>
+              <span class="pile-chip pile-chip--review">&#10007; Review <span id="count-y">0</span></span>
+              <span class="pile-chip pile-chip--unseen">&#8212; Unseen <span id="count-u">0</span></span>
+            </div>
+            <span class="quiz-meta" id="quiz-meta"></span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <p class="question-text" id="question-text"></p>
+          <div class="options-list" id="options-list"></div>
+          <div id="explanation-box" style="display:none;"></div>
+        </div>
+
+        <div style="margin-top:var(--sp-5);display:flex;justify-content:flex-end;">
+          <button id="next-btn" class="btn btn--primary" style="display:none;">Next question &rarr;</button>
+        </div>
+      </div>
+
+      <div id="round-complete" style="display:none;">
+        <div class="round-complete">
+          <div class="round-complete__icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 14L11 19L22 9" stroke="#00924a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="round-complete__title" id="round-title"></h2>
+          <p class="round-complete__sub" id="round-sub"></p>
+          <button id="continue-btn" class="btn btn--primary btn--lg"></button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="site-footer__inner">
+        <span class="site-footer__copy">DECA Finance Quiz &mdash; open source study tool</span>
+        <div class="site-footer__links">
+          <a href="index.html">Home</a>
+          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="questions.js"></script>
+  <script src="quiz.js"></script>
+</body>
+</html>
