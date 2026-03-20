@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz &mdash; DECA Finance</title>
-  <meta name="description" content="Answer DECA Finance questions with spaced repetition. Track mastered, review, and unseen piles." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2300924a'/><text x='16' y='22' text-anchor='middle' font-family='Inter,sans-serif' font-size='18' font-weight='700' fill='white'>D</text></svg>" />
+  <meta name="description" content="Answer DECA Finance questions with spaced repetition." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23009b47'/><polygon points='16,6 28,26 4,26' fill='white'/></svg>" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,24 +13,33 @@
   <nav class="site-nav">
     <div class="container">
       <div class="site-nav__inner">
-        <a href="index.html" class="site-nav__logo">DECA<span>Finance</span></a>
+        <a href="index.html" class="site-nav__logo">
+          <span class="site-nav__logo-tri"></span>
+          DECA<span>Finance</span>
+        </a>
         <div class="site-nav__links">
-          <button id="reset-btn" class="btn btn--ghost" style="height:36px;padding:0 16px;font-size:13px;">Reset progress</button>
+          <button id="reset-btn" class="btn btn--ghost" style="height:36px;padding:0 16px;font-size:12px;">Reset progress</button>
         </div>
       </div>
     </div>
   </nav>
 
-  <main style="padding: var(--sp-8) 0 var(--sp-11);">
+  <main style="padding: 40px 0 80px;">
     <div class="container container--sm">
 
       <div id="quiz-screen">
         <div class="quiz-header">
           <div class="quiz-header__top">
             <div class="pile-row" id="pile-row">
-              <span class="pile-chip pile-chip--mastered">&#10003; Mastered <span id="count-x">0</span></span>
-              <span class="pile-chip pile-chip--review">&#10007; Review <span id="count-y">0</span></span>
-              <span class="pile-chip pile-chip--unseen">&#8212; Unseen <span id="count-u">0</span></span>
+              <span class="pile-chip pile-chip--mastered">
+                <span class="pile-chip--mastered-tri"></span>Mastered <span id="count-x">0</span>
+              </span>
+              <span class="pile-chip pile-chip--review">
+                <span class="pile-chip--review-tri"></span>Review <span id="count-y">0</span>
+              </span>
+              <span class="pile-chip pile-chip--unseen">
+                <span class="pile-chip--unseen-tri"></span>Unseen <span id="count-u">0</span>
+              </span>
             </div>
             <span class="quiz-meta" id="quiz-meta"></span>
           </div>
@@ -45,18 +54,15 @@
           <div id="explanation-box" style="display:none;"></div>
         </div>
 
-        <div style="margin-top:var(--sp-5);display:flex;justify-content:flex-end;">
+        <div class="next-row">
+          <div class="kbd-hint" id="kbd-hint">Press <kbd class="kbd">A</kbd> <kbd class="kbd">B</kbd> <kbd class="kbd">C</kbd> <kbd class="kbd">D</kbd> to answer</div>
           <button id="next-btn" class="btn btn--primary" style="display:none;">Next question &rarr;</button>
         </div>
       </div>
 
       <div id="round-complete" style="display:none;">
         <div class="round-complete">
-          <div class="round-complete__icon">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 14L11 19L22 9" stroke="#00924a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
+          <div class="round-complete__icon"></div>
           <h2 class="round-complete__title" id="round-title"></h2>
           <p class="round-complete__sub" id="round-sub"></p>
           <button id="continue-btn" class="btn btn--primary btn--lg"></button>

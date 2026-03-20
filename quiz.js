@@ -68,7 +68,6 @@ function updateHUD() {
   document.getElementById('count-u').textContent = pileU.length;
   const pct = (pileX.length / ALL_QUESTIONS.length) * 100;
   document.getElementById('progress-fill').style.width = pct + '%';
-
   const labels = { unseen: 'Unseen pile', review: 'Review pile', mastered: 'All mastered' };
   document.getElementById('quiz-meta').textContent = labels[queueSource] || '';
 }
@@ -85,7 +84,7 @@ function renderQuestion() {
   q.opts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-btn__key">${keys[i]}</span><span class="option-btn__text">${opt}</span>`;
+    btn.innerHTML = `<span class="option-btn__key"><span class="option-btn__key-label">${keys[i]}</span></span><span class="option-btn__text">${opt}</span>`;
     btn.addEventListener('click', () => handleAnswer(i));
     list.appendChild(btn);
   });
@@ -96,6 +95,10 @@ function renderQuestion() {
   expBox.innerHTML = '';
 
   document.getElementById('next-btn').style.display = 'none';
+
+  const hint = document.getElementById('kbd-hint');
+  if (hint) hint.innerHTML = 'Press <kbd class="kbd">A</kbd> <kbd class="kbd">B</kbd> <kbd class="kbd">C</kbd> <kbd class="kbd">D</kbd> to answer';
+
   updateHUD();
 }
 
@@ -106,6 +109,7 @@ function handleAnswer(chosen) {
   const q = ALL_QUESTIONS[current];
   const correct = q.ans;
   const btns = document.querySelectorAll('.option-btn');
+  const keys = ['A', 'B', 'C', 'D'];
 
   btns.forEach(b => b.disabled = true);
   btns[correct].classList.add('option-btn--correct');
@@ -116,7 +120,6 @@ function handleAnswer(chosen) {
     pileU = pileU.filter(x => x !== current);
     pileY = pileY.filter(x => x !== current);
     if (!pileX.includes(current)) pileX.push(current);
-
     expBox.className = 'explanation-box explanation-box--correct';
     expBox.innerHTML = `<strong>Correct &mdash; moved to Mastered.</strong> ${q.exp}`;
   } else {
@@ -124,14 +127,16 @@ function handleAnswer(chosen) {
     pileU = pileU.filter(x => x !== current);
     pileX = pileX.filter(x => x !== current);
     if (!pileY.includes(current)) pileY.push(current);
-
-    const keys = ['A', 'B', 'C', 'D'];
     expBox.className = 'explanation-box explanation-box--wrong';
     expBox.innerHTML = `<strong>Incorrect &mdash; moved to Review.</strong> The correct answer is <strong>${keys[correct]}. ${q.opts[correct]}</strong><br><br>${q.exp}`;
   }
 
   expBox.style.display = 'block';
   document.getElementById('next-btn').style.display = 'inline-flex';
+
+  const hint = document.getElementById('kbd-hint');
+  if (hint) hint.innerHTML = 'Press <kbd class="kbd">Space</kbd> or <kbd class="kbd">Enter</kbd> to continue';
+
   updateHUD();
   saveState();
 }
@@ -170,6 +175,21 @@ function showRoundComplete() {
 
   saveState();
 }
+
+document.addEventListener('keydown', (e) => {
+  const key = e.key.toUpperCase();
+  if (!answered && ['A', 'B', 'C', 'D'].includes(key)) {
+    const idx = ['A', 'B', 'C', 'D'].indexOf(key);
+    const btns = document.querySelectorAll('.option-btn');
+    if (btns[idx] && !btns[idx].disabled) handleAnswer(idx);
+    return;
+  }
+  if (answered && (e.key === ' ' || e.key === 'Enter')) {
+    e.preventDefault();
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn && nextBtn.style.display !== 'none') nextQuestion();
+  }
+});
 
 document.getElementById('next-btn').addEventListener('click', () => {
   nextQuestion();
